@@ -192,6 +192,19 @@ main{max-width:1200px;margin:0 auto;padding:16px 16px 60px}
 .res-table select{min-width:74px;padding:7px 22px 7px 8px}
 .res-table .calc{font-family:Orbitron;font-size:12px;color:var(--gold2)}
 .warn{color:#ffc865;font-size:14px;margin-top:8px}
+.subs{display:flex;flex-direction:column;gap:10px}
+.sub-block{background:rgba(0,0,0,.25);border:1px solid var(--line2);border-radius:12px;padding:10px}
+.sub-h{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.sub-h .input{font-weight:700}
+.sub-n{font-family:Orbitron;font-size:12px;color:var(--gold);width:20px;text-align:center}
+.sub-r{display:grid;grid-template-columns:30px 1fr 104px 54px;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--line2)}
+.sub-r img{width:28px;height:28px;object-fit:contain}
+.sub-r span{font-weight:600;line-height:1.1}
+.sub-r select{padding:6px 22px 6px 8px}
+.sub-r .calc,.res-table .calc{font-family:Orbitron;font-size:12px;color:var(--gold2);text-align:right}
+details.subd summary{cursor:pointer;color:var(--gold2);font-weight:700;font-size:14px}
+.mx.sm{font-size:13px}.mx.sm th img{width:26px;height:26px}
+.mx .pp{font-family:Orbitron;font-size:10px;color:var(--gold2)}
 .signin-logo{width:110px;height:110px;display:block;margin:0 auto 10px;filter:drop-shadow(0 8px 24px rgba(196,18,31,.5))}
 
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a070b;border:1px solid var(--gold);padding:10px 16px;border-radius:10px;z-index:60;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.5)}
@@ -256,9 +269,12 @@ const DEFAULT_POINTS = {
 /* ---------- Events: Annex A (Intramurals 2026) ---------- */
 function buildEvents() {
   const out = [];
-  const add = (dept, name, cat, divs, type, subs) => divs.forEach(div => out.push({
+  // pool 'sub'   = each sub-event ranked on its own (Badminton/Table Tennis Singles+Doubles, Swimming)
+  // pool 'event' = all entrants ranked in one list (Chess players, Little Mr./Ms. candidates)
+  const add = (dept, name, cat, divs, type, subs, pool) => divs.forEach(div => out.push({
     id: (dept + '-' + name + '-' + (div || 'open')).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    dept, name, division: div, category: cat, type: type || 'single', subs: subs || [], status: 'upcoming', res: {}
+    dept, name, division: div, category: cat, type: type || 'single',
+    subs: (subs || []).map((l, i) => ({ id: 's' + (i + 1), label: l })), pool: pool || 'sub', status: 'upcoming', res: {}
   }));
   const MW = ['Men', 'Women'], MWX = ['Men', 'Women', 'Mixed'];
   // College and High School
@@ -267,7 +283,7 @@ function buildEvents() {
   add('chs', 'Sepak Takraw', 'A', ['']);
   add('chs', 'Cheer Dance', 'A', ['']);
   add('chs', 'Mr. and Ms. PaSEClaban', 'B', MW);
-  add('chs', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2']);
+  add('chs', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2'], 'event');
   add('chs', 'Mobile Legends', 'B', ['']);
   add('chs', 'Call of Duty Mobile', 'B', ['']);
   add('chs', 'Table Tennis', 'B', MW, 'multi', ['Singles', 'Doubles']);
@@ -275,7 +291,7 @@ function buildEvents() {
   add('chs', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('chs', 'Badminton', 'B', ['Mixed']);
   add('chs', 'Pickleball', 'B', MWX);
-  add('chs', 'Swimming', 'B', MW, 'multi', ['Sub-event 1', 'Sub-event 2', 'Sub-event 3']);
+  add('chs', 'Swimming', 'B', MW, 'multi', ['50m Freestyle']);
   add('chs', 'Bench Yell', 'B', ['']);
   add('chs', 'Dance Sport – Latin Section', 'B', ['']);
   add('chs', 'Dance Sport – Standard Section', 'B', ['']);
@@ -284,13 +300,13 @@ function buildEvents() {
   add('elem', 'Basketball', 'A', ['Men']);
   add('elem', 'Volleyball', 'A', MW);
   add('elem', 'Mass Dance', 'A', ['']);
-  add('elem', 'Little Mr. and Ms. PaSEClaban', 'A', MW, 'multi', ['Candidate 1', 'Candidate 2']);
-  add('elem', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2']);
+  add('elem', 'Little Mr. and Ms. PaSEClaban', 'A', MW, 'multi', ['Candidate 1', 'Candidate 2'], 'event');
+  add('elem', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2'], 'event');
   add('elem', 'Table Tennis', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('elem', 'Table Tennis', 'B', ['Mixed']);
   add('elem', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('elem', 'Badminton', 'B', ['Mixed']);
-  add('elem', 'Swimming', 'B', MW, 'multi', ['Sub-event 1', 'Sub-event 2', 'Sub-event 3']);
+  add('elem', 'Swimming', 'B', MW, 'multi', ['50m Freestyle']);
   add('elem', 'Dance Sport – Latin Section', 'B', ['']);
   add('elem', 'Dance Sport – Standard Section', 'B', ['']);
   add('elem', 'Banner Raising', 'C', ['']);
@@ -298,7 +314,7 @@ function buildEvents() {
 }
 
 const DEFAULT_STATE = {
-  schema: 2,
+  schema: 3,
   depts: [
     { id: 'chs',  name: 'College and High School' },
     { id: 'elem', name: 'Elementary' }
@@ -322,7 +338,7 @@ const DEFAULT_STATE = {
 /* ---------- Runtime ---------- */
 const S = { state: null, admin: false, password: '', editor: '', tab: 'overall', dept: 'chs', cat: 'All', evFilter: 'all', lastSync: null, poll: null };
 const DEMO = !CONFIG.API_URL;
-const DEMO_KEY = 'paseclaban2026_demo_v2';
+const DEMO_KEY = 'paseclaban2026_demo_v3';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -398,23 +414,38 @@ function awardShared(cat, list) {
   return out;
 }
 
-// Returns rows: { team, rank, tied, points, flag, detail:[{label,rank,pts}], total }
+// Cell values in res[team].p[subId]: rank number | 'D' (default) | 'Q' (disqualified)
+// Returns rows: { team, rank, tied, points, flag, detail:[{id,label,rank,mark,pts,tied}], total }
 function computeEvent(e) {
   const teams = teamsOf(e.dept);
   const R = e.res || {};
   let rows;
   if (e.type === 'multi') {
-    rows = teams.map(t => {
-      const r = R[t.id] || {}; const p = r.p || [];
-      const detail = e.subs.map((lab, i) => {
-        const v = p[i];
-        if (v === 'D') return { label: lab, rank: 'D', pts: 0 };
-        const n = Number(v) || 0;
-        return { label: lab, rank: n || null, pts: n ? ptAt(e.category, n) : 0 };
-      });
-      return { team: t, flag: r.flag || '', detail, total: detail.reduce((a, d) => a + d.pts, 0) };
+    // Step 1: placement points; ties inside a ranking list share points (Art. VI Sec. 1)
+    const cell = (t, s) => ((R[t.id] || {}).p || {})[s.id];
+    const pp = {};   // key team|sub -> placement points
+    const tiedK = {};
+    const pools = e.pool === 'event' ? [e.subs] : e.subs.map(s => [s]);
+    pools.forEach(subs => {
+      const list = [];
+      teams.forEach(t => subs.forEach(s => { const n = Number(cell(t, s)); if (n) list.push({ id: t.id + '|' + s.id, rank: n }); }));
+      Object.assign(pp, awardShared(e.category, list));
+      const c = {}; list.forEach(x => c[x.rank] = (c[x.rank] || 0) + 1);
+      list.forEach(x => tiedK[x.id] = c[x.rank] > 1);
     });
-    // Step 3: rank totals (teams with placement points only); DQ keeps its position vacant
+    rows = teams.map(t => {
+      const r = R[t.id] || {};
+      const detail = e.subs.map(s => {
+        const v = cell(t, s), k = t.id + '|' + s.id;
+        if (v === 'D' || v === 'Q') return { id: s.id, label: s.label, rank: null, mark: v, pts: 0 };
+        const n = Number(v) || null;
+        return { id: s.id, label: s.label, rank: n, mark: '', pts: n ? pp[k] || 0 : 0, tied: !!tiedK[k] };
+      });
+      // Step 2: add placement points within the division
+      const total = Math.round(detail.reduce((a, d) => a + d.pts, 0) * 100) / 100;
+      return { team: t, flag: r.flag || '', detail, total };
+    });
+    // Step 3: rank teams by total; only teams with placement points are ranked; DQ position stays vacant
     const ranked = rows.filter(x => x.total > 0).sort((a, b) => b.total - a.total);
     ranked.forEach((x, i) => { x.rank = (i && ranked[i - 1].total === x.total) ? ranked[i - 1].rank : i + 1; });
     const live = ranked.filter(x => x.flag !== 'dq');
@@ -434,7 +465,7 @@ function computeEvent(e) {
   rows.sort((a, b) => (a.rank || 99) - (b.rank || 99) || b.points - a.points || a.team.name.localeCompare(b.team.name));
   return rows;
 }
-const hasResults = e => Object.values(e.res || {}).some(r => r.rank || r.flag || (r.p || []).some(Boolean));
+const hasResults = e => Object.values(e.res || {}).some(r => r.rank || r.flag || Object.values(r.p || {}).some(Boolean));
 
 function overall(dept) {
   const rows = teamsOf(dept).map(t => ({ team: t, pts: 0, m: [0, 0, 0] }));
@@ -508,8 +539,21 @@ function placeRow(e, x) {
   let cls = 'place r' + (x.flag ? '' : (x.rank || 0));
   if (x.flag === 'dq') { cls = 'place x'; p = 'DQ · 0.00'; }
   if (x.flag === 'def') { cls = 'place x'; r = '—'; p = 'Default · 0.00'; }
-  const sub = e.type === 'multi' ? `<small>${x.detail.map(d => `${esc(d.label)}: ${d.rank === 'D' ? 'Def' : d.rank ? ORD(d.rank) + ' = ' + d.pts : '—'}`).join(' · ')} · Total ${x.total}</small>` : (x.team.unit ? `<small>${esc(x.team.unit)}</small>` : '');
+  const sub = e.type === 'multi' ? `<small>Placement total ${f2(x.total)}</small>` : (x.team.unit ? `<small>${esc(x.team.unit)}</small>` : '');
   return `<div class="${cls}"><span class="r">${r}</span><img src="${x.team.logo}" alt=""><span class="n">${esc(x.team.name)}${sub}</span><span class="p">${p}</span></div>`;
+}
+
+function cellTxt(d) { return d.mark === 'D' ? 'Default' : d.mark === 'Q' ? 'DQ' : d.rank ? (d.tied ? 'T-' : '') + ORD(d.rank) : '—'; }
+function subDetails(e, rows) {
+  // Per sub-event placements (Art. IV Steps 1–2)
+  const byTeam = Object.fromEntries(rows.map(x => [x.team.id, x]));
+  const teams = rows.map(x => x.team);
+  return `<details class="subd"><summary>${e.pool === 'event' ? 'Entrant placements' : 'Sub-event results'} (${e.subs.length})</summary>
+    <div class="scroll-x" style="margin-top:8px"><table class="mx sm">
+      <thead><tr><th>${e.pool === 'event' ? 'ENTRANT' : 'SUB-EVENT'}</th>${teams.map(t => `<th><img src="${t.logo}" alt="">${esc(t.unit || t.name)}</th>`).join('')}</tr></thead>
+      <tbody>${e.subs.map(sb => `<tr><td>${esc(sb.label)}</td>${teams.map(t => { const d = byTeam[t.id].detail.find(q => q.id === sb.id); return `<td class="${d.pts ? '' : 'z'}">${cellTxt(d)}${d.pts ? `<br><span class="pp">${f2(d.pts)}</span>` : ''}</td>`; }).join('')}</tr>`).join('')}
+      <tr class="tot"><td>TOTAL</td>${teams.map(t => `<td>${f2(byTeam[t.id].total)}</td>`).join('')}</tr></tbody>
+    </table></div></details>`;
 }
 
 function eventCard(e) {
@@ -518,6 +562,7 @@ function eventCard(e) {
   return `<div class="ev">
     <div class="ev-h"><b>${esc(e.division ? divLabel(e) : 'Result')}</b><span class="st ${e.status}">${e.status.toUpperCase()}</span></div>
     ${any ? `<div class="places">${rows.filter(x => x.rank || x.flag).map(x => placeRow(e, x)).join('')}</div>` : `<div class="muted" style="font-size:14px">No results yet.</div>`}
+    ${any && e.type === 'multi' ? subDetails(e, rows) : ''}
     ${S.admin ? `<div class="row"><button class="btn sm gold" data-res="${e.id}">Enter results</button></div>` : ''}
   </div>`;
 }
@@ -573,7 +618,7 @@ function vManage() {
   <div class="sec-title"><h2 class="silver-text">MANAGE EVENTS</h2><span class="spacer"></span><button class="btn sm primary" id="btnAdd">+ Add event</button></div>
   <div class="row" style="margin-bottom:12px">${deptSeg()}</div>
   <div class="ed-list">${evs.map(e => `
-    <div class="ed-item"><div class="nm"><b>${esc(evTitle(e))}</b><span>Category ${e.category} · ${e.type === 'multi' ? 'Multi (' + esc(e.subs.join(', ')) + ')' : 'Single'}</span></div>
+    <div class="ed-item"><div class="nm"><b>${esc(evTitle(e))}</b><span>Category ${e.category} · ${e.type === 'multi' ? 'Multi · ' + e.subs.length + ' ' + (e.pool === 'event' ? 'entrants' : 'sub-events') : 'Single'}</span></div>
       <span class="st ${e.status}">${e.status.toUpperCase()}</span>
       <button class="btn sm gold" data-res="${e.id}">Results</button>
       <button class="btn sm" data-edit="${e.id}">Edit</button></div>`).join('')}
@@ -640,59 +685,105 @@ function rankOptions(max, cur, extra) {
   return o + (extra || '');
 }
 
+let RW = null; // working copy of the event being edited in the results dialog
+
 function openResults(id) {
-  const e = S.state.events.find(x => x.id === id);
-  const teams = teamsOf(e.dept);
-  const R = e.res || {};
-  const multi = e.type === 'multi';
-  const maxRank = multi ? 10 : teams.length;
-  modal(`
-    <h3 class="gold-text">${esc(evTitle(e))}</h3>
-    <div class="muted" style="font-size:14px">${esc(deptName(e.dept))} · Category ${e.category} · ${multi ? 'Multi-representative' : 'Single-representative'}</div>
-    <table class="res-table"><thead><tr><th>Team</th>
-      ${multi ? e.subs.map(s => `<th>${esc(s)}</th>`).join('') : '<th>Official rank</th>'}
-      <th>Status</th><th>Pts</th></tr></thead><tbody>
-    ${teams.map(t => { const r = R[t.id] || {}; return `<tr data-team="${t.id}">
-      <td><div class="tm"><img src="${t.logo}" alt=""><span>${esc(t.name)}</span></div></td>
-      ${multi ? e.subs.map((_, i) => `<td><select class="input" data-sub="${i}">${rankOptions(maxRank, (r.p || [])[i], `<option value="D" ${(r.p || [])[i] === 'D' ? 'selected' : ''}>Default</option>`)}</select></td>`).join('')
-              : `<td><select class="input" data-rank>${rankOptions(maxRank, r.rank)}</select></td>`}
-      <td><select class="input" data-flag><option value="">OK</option>${multi ? '' : `<option value="def" ${r.flag === 'def' ? 'selected' : ''}>Default</option>`}<option value="dq" ${r.flag === 'dq' ? 'selected' : ''}>DQ</option></select></td>
-      <td class="calc" data-calc>—</td></tr>`; }).join('')}
-    </tbody></table>
-    <div class="field" style="margin-top:12px"><label>Status</label>
-      <select class="input" id="resStatus">${['upcoming', 'ongoing', 'final'].map(s => `<option value="${s}" ${e.status === s ? 'selected' : ''}>${s[0].toUpperCase() + s.slice(1)}${s === 'final' ? ' (counts in overall)' : ''}</option>`).join('')}</select></div>
-    <div class="warn" id="resWarn"></div>
-    <p class="note">${multi ? 'Placement points per sub-event are added, teams are re-ranked by total, then awarded by rank (Art. IV).' : 'Enter the official rank. Same rank on two teams = tie; they share the points of the ranks they occupy.'} DQ: 0 points, rank left vacant (Art. VI Sec. 4).</p>
-    <div class="row" style="margin-top:8px"><button class="btn ghost" data-close>Cancel</button><span class="spacer"></span><button class="btn primary" id="resSave" data-id="${e.id}">Save results</button></div>`);
-  const upd = () => {
-    const tmp = clone(e); tmp.res = collectRes(e);
-    const rows = computeEvent(tmp);
-    rows.forEach(x => { const c = $(`tr[data-team="${x.team.id}"] [data-calc]`); if (c) c.textContent = (x.rank || x.flag) ? (x.flag === 'dq' ? 'DQ' : f2(x.points)) : '—'; });
-    let w = '';
-    if (!multi) {
-      const ranks = rows.filter(x => x.rank).map(x => x.rank);
-      const dup = [...new Set(ranks.filter((v, i) => ranks.indexOf(v) !== i))];
-      if (dup.length) w = 'Tie at ' + dup.map(ORD).join(', ') + ' — points shared.';
-    } else if (rows.some(x => x.tied)) w = 'Tied totals — points shared.';
-    $('#resWarn').textContent = w;
-  };
-  $$('.res-table select').forEach(s => s.addEventListener('change', upd));
-  upd();
+  RW = clone(S.state.events.find(x => x.id === id));
+  RW.res = RW.res || {};
+  renderResults();
 }
 
-function collectRes(e) {
+function renderResults(focusSub) {
+  const e = RW, teams = teamsOf(e.dept), R = e.res, multi = e.type === 'multi';
+  const statusSel = `<div class="field" style="margin-top:12px"><label>Event status</label>
+      <select class="input" id="resStatus">${['upcoming', 'ongoing', 'final'].map(s => `<option value="${s}" ${e.status === s ? 'selected' : ''}>${s[0].toUpperCase() + s.slice(1)}${s === 'final' ? ' (counts in overall)' : ''}</option>`).join('')}</select></div>`;
+  const head = `<h3 class="gold-text">${esc(evTitle(e))}</h3>
+    <div class="muted" style="font-size:14px">${esc(deptName(e.dept))} · Category ${e.category} · ${multi ? 'Multi-representative' : 'Single-representative'}</div>`;
+  const foot = `<div class="warn" id="resWarn"></div>
+    <div class="row" style="margin-top:10px"><button class="btn ghost" data-close>Cancel</button><span class="spacer"></span><button class="btn primary" id="resSave">Save results</button></div>`;
+  let body;
+  if (!multi) {
+    body = `<table class="res-table"><thead><tr><th>Team</th><th>Official rank</th><th>Status</th><th>Pts</th></tr></thead><tbody>
+      ${teams.map(t => { const r = R[t.id] || {}; return `<tr data-team="${t.id}">
+        <td><div class="tm"><img src="${t.logo}" alt=""><span>${esc(t.name)}</span></div></td>
+        <td><select class="input" data-rank>${rankOptions(teams.length, r.rank)}</select></td>
+        <td><select class="input" data-flag><option value="">OK</option><option value="def" ${r.flag === 'def' ? 'selected' : ''}>Default</option><option value="dq" ${r.flag === 'dq' ? 'selected' : ''}>DQ</option></select></td>
+        <td class="calc" data-calc>—</td></tr>`; }).join('')}
+      </tbody></table>
+      <p class="note">Enter the official rank. Same rank on two teams = tie; they share the points of the ranks they occupy. Default/DQ = 0 points; a DQ rank stays vacant.</p>`;
+  } else {
+    const maxRank = 10;
+    const cellOpt = v => rankOptions(maxRank, v, `<option value="D" ${v === 'D' ? 'selected' : ''}>Default</option><option value="Q" ${v === 'Q' ? 'selected' : ''}>DQ</option>`);
+    const word = e.pool === 'event' ? 'entrant' : 'sub-event';
+    body = `
+      <p class="note" style="margin:8px 0">${e.pool === 'event'
+        ? 'All entrants are ranked in one list (e.g. Chess players, candidates). Enter each entrant’s official rank.'
+        : 'Each sub-event is ranked on its own (e.g. Singles, Doubles, each swimming event). Enter each team’s rank per sub-event.'}</p>
+      <div class="subs">${e.subs.map((sb, i) => `
+        <div class="sub-block" data-sb="${sb.id}">
+          <div class="sub-h"><span class="sub-n">${i + 1}</span><input class="input" data-sublabel="${sb.id}" value="${esc(sb.label)}" aria-label="${word} name">
+            <button class="btn sm danger" data-subdel="${sb.id}" title="Remove ${word}">✕</button></div>
+          ${teams.map(t => { const v = ((R[t.id] || {}).p || {})[sb.id] ?? ''; return `
+            <div class="sub-r"><img src="${t.logo}" alt=""><span>${esc(t.name)}</span><select class="input" data-cell="${t.id}|${sb.id}">${cellOpt(String(v))}</select><span class="calc" data-pp="${t.id}|${sb.id}"></span></div>`; }).join('')}
+        </div>`).join('') || `<div class="empty" style="padding:14px">No ${word}s yet.</div>`}
+      </div>
+      <button class="btn sm" id="resAddSub" style="margin-top:8px">+ Add ${word}</button>
+      <h3 style="font-size:13px;margin:16px 0 6px" class="silver-text">TEAM TOTALS → EVENT RANK</h3>
+      <table class="res-table"><thead><tr><th>Team</th><th>Placement total</th><th>Event rank</th><th>Team status</th><th>Pts</th></tr></thead><tbody>
+      ${teams.map(t => { const r = R[t.id] || {}; return `<tr data-team="${t.id}">
+        <td><div class="tm"><img src="${t.logo}" alt=""><span>${esc(t.name)}</span></div></td>
+        <td class="calc" data-tot>—</td><td class="calc" data-rk>—</td>
+        <td><select class="input" data-flag><option value="">OK</option><option value="dq" ${r.flag === 'dq' ? 'selected' : ''}>DQ</option></select></td>
+        <td class="calc" data-calc>—</td></tr>`; }).join('')}
+      </tbody></table>
+      <p class="note">Steps 1–3 (Art. IV): placement points per ${word} → added per team → teams re-ranked by total → points by new rank. Ties share points. Default/DQ in a ${word} = 0 for that ${word} only; team DQ = 0 for the event, rank vacant.</p>`;
+  }
+  modal(head + body + statusSel + foot);
+  $$('#modalHost select, #modalHost input[data-sublabel]').forEach(el => el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', updResults));
+  updResults();
+  if (focusSub) { const i = $(`[data-sublabel="${focusSub}"]`); if (i) { i.focus(); i.select(); } }
+}
+
+function syncResults() {
+  const e = RW;
   const res = {};
-  $$('.res-table tr[data-team]').forEach(tr => {
-    const id = tr.dataset.team, flag = tr.querySelector('[data-flag]').value;
-    if (e.type === 'multi') {
-      const p = [...tr.querySelectorAll('[data-sub]')].map(s => s.value === 'D' ? 'D' : (Number(s.value) || ''));
-      if (flag || p.some(Boolean)) res[id] = { p, flag };
-    } else {
-      const rank = Number(tr.querySelector('[data-rank]').value) || null;
-      if (flag || rank) res[id] = { rank, flag };
+  if (e.type === 'multi') {
+    $$('[data-sublabel]').forEach(i => { const sb = e.subs.find(x => x.id === i.dataset.sublabel); if (sb) sb.label = i.value.trim() || sb.label; });
+    $$('[data-cell]').forEach(sel => {
+      const [tid, sid] = sel.dataset.cell.split('|');
+      if (!sel.value) return;
+      res[tid] = res[tid] || { p: {}, flag: '' };
+      res[tid].p[sid] = (sel.value === 'D' || sel.value === 'Q') ? sel.value : Number(sel.value);
+    });
+    $$('.res-table tr[data-team]').forEach(tr => { const f = tr.querySelector('[data-flag]').value; if (f) { res[tr.dataset.team] = res[tr.dataset.team] || { p: {}, flag: '' }; res[tr.dataset.team].flag = f; } });
+  } else {
+    $$('.res-table tr[data-team]').forEach(tr => {
+      const rank = Number(tr.querySelector('[data-rank]').value) || null, flag = tr.querySelector('[data-flag]').value;
+      if (rank || flag) res[tr.dataset.team] = { rank, flag };
+    });
+  }
+  e.res = res;
+  if ($('#resStatus')) e.status = $('#resStatus').value;
+}
+
+function updResults() {
+  syncResults();
+  const rows = computeEvent(RW);
+  const warn = [];
+  rows.forEach(x => {
+    const tr = $(`.res-table tr[data-team="${x.team.id}"]`); if (!tr) return;
+    tr.querySelector('[data-calc]').textContent = (x.rank || x.flag) ? (x.flag === 'dq' ? 'DQ' : f2(x.points)) : '—';
+    if (RW.type === 'multi') {
+      tr.querySelector('[data-tot]').textContent = x.total ? f2(x.total) : '—';
+      tr.querySelector('[data-rk]').textContent = x.rank ? (x.tied ? 'T-' : '') + ORD(x.rank) : '—';
+      x.detail.forEach(d => { const c = $(`[data-pp="${x.team.id}|${d.id}"]`); if (c) c.textContent = d.pts ? f2(d.pts) : ''; });
     }
   });
-  return res;
+  if (RW.type === 'multi') {
+    if (rows.some(x => x.detail.some(d => d.tied))) warn.push('Tied placement in a ' + (RW.pool === 'event' ? 'ranking' : 'sub-event') + ' — points shared.');
+    if (rows.some(x => x.tied)) warn.push('Tied team totals — event points shared.');
+  } else if (rows.some(x => x.tied)) warn.push('Tie in official ranks — points shared.');
+  $('#resWarn').textContent = warn.join(' ');
 }
 
 function openEventForm(id) {
@@ -706,7 +797,13 @@ function openEventForm(id) {
       <div class="field"><label>Category</label><select class="input" id="fCat">${['A', 'B', 'C'].map(c => `<option ${e.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
       <div class="field"><label>Type</label><select class="input" id="fType"><option value="single" ${e.type === 'single' ? 'selected' : ''}>Single-representative</option><option value="multi" ${e.type === 'multi' ? 'selected' : ''}>Multi-representative</option></select></div>
     </div>
-    <div class="field" id="fSubsWrap"><label>Sub-events / entrants (comma-separated)</label><input class="input" id="fSubs" value="${esc(e.subs.join(', '))}" placeholder="e.g. Singles, Doubles"></div>
+    <div id="fSubsWrap">
+      <div class="field"><label>Ranking</label><select class="input" id="fPool">
+        <option value="sub" ${e.pool !== 'event' ? 'selected' : ''}>Each sub-event ranked separately (Badminton, Table Tennis, Swimming)</option>
+        <option value="event" ${e.pool === 'event' ? 'selected' : ''}>All entrants ranked in one list (Chess, Little Mr./Ms.)</option></select></div>
+      ${id ? '<p class="note">Sub-events / entrants are added, renamed or removed in the Results dialog.</p>'
+           : '<div class="field"><label>Initial sub-events / entrants (comma-separated)</label><input class="input" id="fSubs" placeholder="e.g. Singles, Doubles"></div>'}
+    </div>
     ${id && hasResults(e) ? '<div class="warn">This event has results. Changing department, type or sub-events may clear them.</div>' : ''}
     <div class="row" style="margin-top:10px">${id ? `<button class="btn danger" id="fDel" data-id="${e.id}">Delete</button>` : ''}<span class="spacer"></span>
       <button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="fSave" data-id="${e.id}">Save</button></div>`);
@@ -722,7 +819,7 @@ function mirrorRows(st) {
   st.depts.forEach(d => overall(d.id).forEach(r => standings.push([d.name, r.rank, r.team.name, r.team.unit, r.pts])));
   const results = [['Department', 'Event', 'Category', 'Type', 'Status', 'Team', 'Rank', 'Flag', 'Detail', 'Points']];
   st.events.forEach(e => computeEvent(e).forEach(x => results.push([deptName(e.dept), evTitle(e), e.category, e.type, e.status, x.team.name, x.rank || '', x.flag || '',
-    e.type === 'multi' ? x.detail.map(dd => dd.label + ':' + (dd.rank || '-')).join(' ') : '', Math.round(x.points * 100) / 100])));
+    e.type === 'multi' ? x.detail.map(dd => dd.label + ': ' + cellTxt(dd) + (dd.pts ? ' (' + f2(dd.pts) + ')' : '')).join(' | ') : '', Math.round(x.points * 100) / 100])));
   S.state = prev;
   return { standings, results };
 }
@@ -754,18 +851,35 @@ document.addEventListener('click', ev => {
   else if (el.id === 'btnAdd') openEventForm();
   else if (el.id === 'btnLogout') { setAdmin(false); ss('pas_pw', null); ss('pas_ed', null); S.password = ''; if (S.tab === 'manage' || S.tab === 'settings') S.tab = 'overall'; render(); toast('Signed out'); }
   else if (el.id === 'resSave') {
-    const e = clone(S.state.events.find(x => x.id === d.id));
-    e.res = collectRes(e); e.status = $('#resStatus').value;
-    save('saveEvent', { event: e }, 'Results saved');
+    syncResults();
+    // drop cells that point to removed sub-events
+    const ids = new Set(RW.subs.map(x => x.id));
+    Object.values(RW.res).forEach(r => { if (r.p) Object.keys(r.p).forEach(k => { if (!ids.has(k)) delete r.p[k]; }); });
+    save('saveEvent', { event: RW }, 'Results saved');
+  }
+  else if (el.id === 'resAddSub') {
+    syncResults();
+    const nid = 's' + Date.now().toString(36);
+    RW.subs.push({ id: nid, label: RW.pool === 'event' ? 'Entrant ' + (RW.subs.length + 1) : 'New sub-event' });
+    renderResults(nid);
+  }
+  else if (d.subdel) {
+    syncResults();
+    const sb = RW.subs.find(x => x.id === d.subdel);
+    const used = Object.values(RW.res).some(r => r.p && r.p[d.subdel]);
+    if (used && !confirm('Remove "' + sb.label + '" and its placements?')) return;
+    RW.subs = RW.subs.filter(x => x.id !== d.subdel);
+    Object.values(RW.res).forEach(r => { if (r.p) delete r.p[d.subdel]; });
+    renderResults();
   }
   else if (el.id === 'fSave') {
     const name = $('#fName').value.trim(); if (!name) { toast('Enter event name'); return; }
     const old = d.id ? S.state.events.find(x => x.id === d.id) : null;
     const e = old ? clone(old) : { id: 'ev-' + Date.now().toString(36), status: 'upcoming', res: {} };
-    const nd = { name, dept: $('#fDept').value, division: $('#fDiv').value, category: $('#fCat').value, type: $('#fType').value,
-      subs: $('#fType').value === 'multi' ? $('#fSubs').value.split(',').map(s => s.trim()).filter(Boolean) : [] };
-    if (nd.type === 'multi' && !nd.subs.length) { toast('Enter at least one sub-event'); return; }
-    if (old && (old.dept !== nd.dept || old.type !== nd.type || old.subs.join('|') !== nd.subs.join('|'))) e.res = {};
+    const nd = { name, dept: $('#fDept').value, division: $('#fDiv').value, category: $('#fCat').value, type: $('#fType').value, pool: $('#fPool').value };
+    if (old) nd.subs = nd.type === 'multi' ? (old.subs || []) : [];
+    else nd.subs = nd.type === 'multi' ? ($('#fSubs').value.split(',').map(s => s.trim()).filter(Boolean)).map((l, i) => ({ id: 's' + (i + 1), label: l })) : [];
+    if (old && (old.dept !== nd.dept || old.type !== nd.type)) e.res = {};
     Object.assign(e, nd);
     save('saveEvent', { event: e }, old ? 'Event updated' : 'Event added');
   }

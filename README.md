@@ -1,4 +1,4 @@
-# PaSEClaban 2026 — Tabulation Site (Draft v2)
+# PaSEClaban 2026 — Tabulation Site (Draft v3)
 
 Surigao Education Center Intramurals, October 27–30, 2026.
 
@@ -16,6 +16,10 @@ Surigao Education Center Intramurals, October 27–30, 2026.
 - Default: 0 points. DQ: 0 points, rank vacant (Art. VI §3–4).
 - Only events marked **Final** count. Departments tabulated separately.
 - Events seeded from Annex A (27 College–HS, 19 Elementary).
+- Multi-representative input: admin adds/renames/removes sub-events (Singles, Doubles, each swimming event) or entrants (Chess players, candidates) in the Results dialog. Each cell: rank, Default, or DQ.
+  - Sub-event ranking (Badminton, Table Tennis, Swimming): each sub-event ranked separately.
+  - Single-list ranking (Chess, Little Mr./Ms.): all entrants ranked in one list.
+  - Ties inside a sub-event or list share placement points.
 
 ## Files
 - `index.html` — whole site.
