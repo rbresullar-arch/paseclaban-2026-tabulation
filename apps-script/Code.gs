@@ -9,7 +9,7 @@
  * 3. Deploy > New deployment > Web app — Execute as: Me · Who has access: Anyone
  * 4. Copy the Web app URL into CONFIG.API_URL in index.html.
  *
- * Storage: sheet "Data" A1 = full JSON state (source of truth).
+ * Storage: sheet "Data" column A = full JSON state in 40,000-char chunks (source of truth).
  *          sheets "Standings" and "Results" = readable mirror, rewritten on every save.
  * All point computation is done by the site (Guidelines Art. II–VI); the server stores it.
  */
@@ -64,7 +64,7 @@ function doPost(e) {
 
     state.updatedAt = new Date().toISOString();
     state.updatedBy = req.username || 'admin';
-    sheet_(DATA_SHEET).getRange('A1').setValue(JSON.stringify(state));
+    saveState_(state);
     if (req.mirror) {
       writeTable_('Standings', req.mirror.standings);
       writeTable_('Results', req.mirror.results);
@@ -82,10 +82,25 @@ function setup() {
   if (def && SpreadsheetApp.getActiveSpreadsheet().getSheets().length > 1) SpreadsheetApp.getActiveSpreadsheet().deleteSheet(def);
 }
 
+const CHUNK = 40000; // a cell holds max 50,000 characters
+
 function loadState_() {
-  const v = sheet_(DATA_SHEET).getRange('A1').getValue();
+  const sh = sheet_(DATA_SHEET);
+  const n = sh.getLastRow();
+  if (!n) return null;
+  const v = sh.getRange(1, 1, n, 1).getValues().map(r => String(r[0]).replace(/^~/, '')).join('');
   if (!v) return null;
   try { return JSON.parse(v); } catch (e) { return null; }
+}
+
+function saveState_(state) {
+  const sh = sheet_(DATA_SHEET);
+  const str = JSON.stringify(state);
+  const rows = [];
+  // '~' prefix keeps a chunk from being read as a formula or number
+  for (let i = 0; i < str.length; i += CHUNK) rows.push(['~' + str.slice(i, i + CHUNK)]);
+  sh.clearContents();
+  sh.getRange(1, 1, rows.length, 1).setNumberFormat('@').setValues(rows);
 }
 
 function writeTable_(name, rows) {
