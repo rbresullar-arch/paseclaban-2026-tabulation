@@ -287,7 +287,11 @@ nav.tabs button{transition:color .2s,border-color .2s}
    CONFIG — paste the Apps Script Web App URL here.
    Empty = DEMO MODE (data saved only in this browser).
    ========================================================= */
-const CONFIG = { API_URL: '', DEMO_USER: 'admin', DEMO_PASSWORD: 'sec2026', POLL_MS: 20000 };
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbxY-JVCeK_FucO-WVUKjk8kKzDcrIwjCFsFo1v21kwYr1cn497h9xGNBJlV5MWwzr9n/exec',
+  DEMO_USER: '', DEMO_PASSWORD: '',   // used only when API_URL is empty
+  POLL_MS: 20000
+};
 
 /* ---------- Point system: Guidelines Art. II Sec. 1 ---------- */
 const DEFAULT_POINTS = {
@@ -395,7 +399,7 @@ async function apiPost(action, payload) {
   if (DEMO) {
     const pw = action === 'login' ? payload.password : S.password;
     const un = action === 'login' ? payload.username : S.editor;
-    if (un !== CONFIG.DEMO_USER || pw !== CONFIG.DEMO_PASSWORD) throw new Error('Invalid username or password');
+    if (!CONFIG.DEMO_PASSWORD || un !== CONFIG.DEMO_USER || pw !== CONFIG.DEMO_PASSWORD) throw new Error('Invalid username or password');
     let st = await apiGet();
     if (action === 'login') return st;
     st = applyLocal(st, action, payload);
@@ -731,8 +735,10 @@ function openSignIn() {
     const pw = $('#sgPass').value, name = $('#sgName').value.trim();
     $('#sgBtn').disabled = true; $('#sgErr').textContent = '';
     try {
-      S.state = await apiPost('login', { username: name, password: pw }) || S.state;
+      const remote = await apiPost('login', { username: name, password: pw });
       S.password = pw; S.editor = name; ss('pas_pw', pw); ss('pas_ed', name);
+      // first admin sign-in on an empty sheet: store the Annex A event list
+      S.state = remote || await apiPost('replaceAll', { state: clone(DEFAULT_STATE) });
       setAdmin(true); $('#modalHost').innerHTML = ''; render(); toast('Signed in');
     } catch (e) { $('#sgErr').textContent = /Invalid/.test(e.message) ? 'Incorrect username or password.' : 'Cannot reach server.'; $('#sgBtn').disabled = false; }
   });

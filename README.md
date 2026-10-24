@@ -5,7 +5,7 @@ Surigao Education Center Intramurals, October 27–30, 2026.
 ## Access
 - Site opens in **view mode** (Overall · Per Event · Breakdown).
 - **Admin sign-in:** click the SEC logo (top-left).
-- Demo password: `sec2026` (demo mode only).
+- Username `admin`; password stored only in Apps Script Script Properties (`EDITOR_PASSWORD`).
 
 ## Scoring (Guidelines on the Overall Tabulation of Points)
 - Points per rank: Category A / B / C table, ranks 1–10 (Art. II).
@@ -26,7 +26,12 @@ Surigao Education Center Intramurals, October 27–30, 2026.
 - `assets/` — SEC logo, team logos.
 - `apps-script/Code.gs` — Google Sheets backend.
 
-## Go live
+## Backend (live)
+- Google Sheet: **PaSEClaban 2026 Tabulation** (rbresullar@sec.edu.ph) — tabs Data / Standings / Results.
+- Apps Script project: **PaSEClaban 2026 Tabulation API**, Web App (Execute as Me, Access Anyone).
+- After editing `Code.gs`: Deploy → Manage deployments → Edit → Version: New version (keeps the same URL).
+
+## Go live (reference)
 1. Google Sheet → Extensions → Apps Script → paste `Code.gs`.
 2. Script Properties → `EDITOR_PASSWORD`.
 3. Deploy → Web app → Execute as Me · Access Anyone → copy URL.
