@@ -1,0 +1,93 @@
+/**
+ * PaSEClaban 2026 Tabulation — Google Apps Script backend
+ *
+ * Setup:
+ * 1. Create a Google Sheet. Extensions > Apps Script. Paste this file.
+ * 2. Project Settings > Script Properties > add:  EDITOR_PASSWORD = <admin password>
+ * 3. Deploy > New deployment > Web app — Execute as: Me · Who has access: Anyone
+ * 4. Copy the Web app URL into CONFIG.API_URL in index.html.
+ *
+ * Storage: sheet "Data" A1 = full JSON state (source of truth).
+ *          sheets "Standings" and "Results" = readable mirror, rewritten on every save.
+ * All point computation is done by the site (Guidelines Art. II–VI); the server stores it.
+ */
+
+const DATA_SHEET = 'Data';
+
+function doGet() {
+  return json_({ ok: true, state: loadState_() });
+}
+
+function doPost(e) {
+  let req;
+  try { req = JSON.parse(e.postData.contents); }
+  catch (err) { return json_({ ok: false, error: 'Bad request' }); }
+
+  const pw = PropertiesService.getScriptProperties().getProperty('EDITOR_PASSWORD');
+  if (!pw || req.password !== pw) return json_({ ok: false, error: 'Invalid password' });
+  if (req.action === 'login') return json_({ ok: true, state: loadState_() });
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    let state = loadState_();
+    const p = req.payload || {};
+    if (req.action !== 'replaceAll' && !state) return json_({ ok: false, error: 'No data yet' });
+
+    switch (req.action) {
+      case 'replaceAll':
+        state = p.state;
+        break;
+      case 'saveEvent': {
+        const i = state.events.findIndex(ev => ev.id === p.event.id);
+        if (i >= 0) state.events[i] = p.event; else state.events.push(p.event);
+        break;
+      }
+      case 'deleteEvent':
+        state.events = state.events.filter(ev => ev.id !== p.id);
+        break;
+      case 'saveSettings':
+        state.teams = p.teams;
+        state.points = p.points;
+        state.announcement = p.announcement || '';
+        break;
+      default:
+        return json_({ ok: false, error: 'Unknown action' });
+    }
+
+    state.updatedAt = new Date().toISOString();
+    state.updatedBy = req.editor || 'Admin';
+    sheet_(DATA_SHEET).getRange('A1').setValue(JSON.stringify(state));
+    if (req.mirror) {
+      writeTable_('Standings', req.mirror.standings);
+      writeTable_('Results', req.mirror.results);
+    }
+    return json_({ ok: true, state: state });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function loadState_() {
+  const v = sheet_(DATA_SHEET).getRange('A1').getValue();
+  if (!v) return null;
+  try { return JSON.parse(v); } catch (e) { return null; }
+}
+
+function writeTable_(name, rows) {
+  if (!rows || !rows.length) return;
+  const sh = sheet_(name);
+  sh.clear();
+  sh.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sh.getRange(1, 1, 1, rows[0].length).setFontWeight('bold');
+  sh.setFrozenRows(1);
+}
+
+function sheet_(name) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(name) || ss.insertSheet(name);
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}

@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PaSEClaban 2026 Tabulation</title>
+<meta name="theme-color" content="#1a0507">
+<link rel="icon" href="assets/sec_logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#120305; --bg2:#2a070b; --panel:rgba(30,6,9,.78); --panel2:rgba(55,10,15,.72);
+  --line:rgba(212,175,55,.22); --line2:rgba(255,255,255,.08);
+  --red:#c4121f; --gold:#d9b54a; --gold2:#f4dd8a; --silver:#d6d9de; --bronze:#d98a4a;
+  --text:#f3ece9; --muted:#b9a7a3; --r:14px;
+}
+*{box-sizing:border-box}
+html{background:#120305}
+html,body{margin:0;min-height:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 70% -10%, rgba(196,18,31,.45), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(125,10,18,.55), transparent 60%),
+    linear-gradient(180deg,var(--bg2),var(--bg));
+  background-attachment:fixed;
+  color:var(--text); font-family:Rajdhani,system-ui,sans-serif; font-size:17px; line-height:1.35;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:6px 6px;opacity:.5;z-index:-1}
+h1,h2,h3,.orb{font-family:Orbitron,sans-serif;letter-spacing:.04em;margin:0}
+.gold-text{background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#9c7a1e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.silver-text{background:linear-gradient(180deg,#fff,#c3c7cc 60%,#80868d);-webkit-background-clip:text;background-clip:text;color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+
+/* buttons / inputs */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);
+  background:var(--panel2);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700;letter-spacing:.03em;transition:.15s}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:linear-gradient(180deg,#d61a28,#8e0b15);border-color:#e0434e}
+.btn.gold{background:linear-gradient(180deg,#e9c763,#a9851f);color:#1d1203;border-color:#f4dd8a}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 11px;font-size:15px}
+.btn.danger{border-color:#e0434e;color:#ff8a91;background:transparent}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:default}
+.field{display:flex;flex-direction:column;gap:5px;text-align:left;margin-bottom:12px}
+.field label{font-size:14px;color:var(--muted);font-weight:600}
+.input{background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:9px;padding:9px 11px;width:100%;outline:none}
+.input:focus{border-color:var(--gold)}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:26px}
+select.input option{background:#2a070b}
+.err{color:#ff8a91;font-size:14px;min-height:18px;margin-top:6px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:rgba(18,3,5,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.logo-btn{background:none;border:0;padding:0;cursor:pointer;line-height:0;border-radius:8px}
+.logo-btn img{width:40px;height:40px;display:block}
+.logo-btn:focus-visible{outline:2px solid var(--gold)}
+.brand{flex:1;min-width:0}
+.brand h1{font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-family:Orbitron;font-size:11px;letter-spacing:.12em;padding:5px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.badge.edit{background:rgba(217,181,74,.15);color:var(--gold2);border-color:var(--gold)}
+.badge.demo{color:#ffcf7a;border-color:#a8761f}
+nav.tabs{max-width:1200px;margin:0 auto;display:flex;gap:2px;padding:0 10px;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{background:none;border:0;padding:10px 14px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs button.on{color:var(--gold2);border-bottom-color:var(--gold)}
+main{max-width:1200px;margin:0 auto;padding:16px 16px 60px}
+
+/* hero */
+.hero{text-align:center;padding:10px 0 16px}
+.hero .school{font-family:Orbitron;font-size:12px;letter-spacing:.3em;color:var(--silver)}
+.hero h2{font-size:clamp(30px,8vw,52px);font-weight:900;line-height:1.05;margin:4px 0}
+.hero .theme{font-size:14px;color:var(--muted);font-style:italic;max-width:520px;margin:4px auto 0}
+.hero .date{font-family:Orbitron;font-size:12px;letter-spacing:.14em;color:var(--gold);margin-top:6px}
+
+.sec-title{display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+.sec-title h2{font-size:16px}
+.seg{display:inline-flex;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;padding:3px;max-width:100%;overflow-x:auto}
+.seg button{background:none;border:0;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--muted);white-space:nowrap}
+.seg button.on{background:linear-gradient(180deg,#d61a28,#8e0b15);color:#fff}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line2);background:rgba(0,0,0,.3);padding:6px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;font-weight:600;color:var(--muted)}
+.chip.on{border-color:var(--gold);color:var(--gold2);background:rgba(217,181,74,.1)}
+.announce{border-left:4px solid var(--gold);background:rgba(217,181,74,.08);padding:10px 14px;border-radius:8px;margin-bottom:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+
+/* overall */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end;margin:6px 0 16px}
+.podium.two{grid-template-columns:repeat(2,1fr);max-width:640px;margin-left:auto;margin-right:auto}
+.pod{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:14px 8px;position:relative}
+.pod img{width:min(110px,100%);aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.pod .nm{font-weight:700;font-size:16px;margin-top:6px;line-height:1.15}
+.pod .un{font-size:12px;color:var(--muted)}
+.pod .pt{font-family:Orbitron;font-size:22px;font-weight:900;margin-top:4px}
+.pod .rk{position:absolute;top:8px;left:10px;font-family:Orbitron;font-weight:900;font-size:18px}
+.pod.p1{order:2;padding-top:24px;border-color:var(--gold);box-shadow:0 0 30px rgba(217,181,74,.18)}
+.pod.p2{order:1}.pod.p3{order:3}
+.podium.two .pod.p1{order:1}.podium.two .pod.p2{order:2}
+.pod.p1 .rk{color:var(--gold2)}.pod.p2 .rk{color:var(--silver)}.pod.p3 .rk{color:var(--bronze)}
+
+.table{width:100%;border-collapse:separate;border-spacing:0 6px}
+.table th{font-size:12px;color:var(--muted);text-align:left;font-weight:600;padding:0 10px;letter-spacing:.06em}
+.table td{background:var(--panel2);padding:9px 10px;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.table td:first-child{border-left:1px solid var(--line2);border-radius:10px 0 0 10px}
+.table td:last-child{border-right:1px solid var(--line2);border-radius:0 10px 10px 0}
+.t-rank{font-family:Orbitron;font-weight:900;width:44px;text-align:center}
+.t-team{display:flex;align-items:center;gap:10px;font-weight:700}
+.t-team img{width:40px;height:40px;object-fit:contain;flex:none}
+.t-team .un{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.t-num{text-align:center;font-weight:700;width:52px}
+.t-pts{font-family:Orbitron;font-weight:900;font-size:18px;text-align:right;width:110px}
+.bar{height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold))}
+.medal{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.m1{background:var(--gold)}.m2{background:var(--silver)}.m3{background:var(--bronze)}
+
+/* events */
+.ev-group{margin-bottom:18px}
+.ev-group-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ev-group-h h3{font-family:Rajdhani;font-size:21px;font-weight:700;letter-spacing:0}
+.cat{font-family:Orbitron;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;letter-spacing:.08em}
+.cat.A{background:rgba(217,181,74,.18);color:var(--gold2)}
+.cat.B{background:rgba(214,217,222,.14);color:var(--silver)}
+.cat.C{background:rgba(217,138,74,.16);color:#f0b07a}
+.type{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.ev{background:var(--panel2);border:1px solid var(--line2);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ev-h{display:flex;gap:8px;align-items:center}
+.ev-h b{font-size:18px;flex:1}
+.st{font-size:10px;font-family:Orbitron;letter-spacing:.1em;padding:4px 7px;border-radius:6px;white-space:nowrap}
+.st.upcoming{background:rgba(255,255,255,.07);color:var(--muted)}
+.st.ongoing{background:rgba(229,168,58,.15);color:#ffc865}
+.st.final{background:rgba(57,194,122,.14);color:#6fe0a3}
+.places{display:flex;flex-direction:column;gap:6px}
+.place{display:grid;grid-template-columns:44px 30px 1fr auto;gap:8px;align-items:center}
+.place img{width:30px;height:30px;object-fit:contain}
+.place .r{font-family:Orbitron;font-size:12px;color:var(--muted);font-weight:700}
+.place .n{font-weight:700;line-height:1.1;min-width:0}
+.place .n small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.place .p{font-family:Orbitron;font-size:13px;color:var(--gold2);text-align:right;white-space:nowrap}
+.place.r1 .r{color:var(--gold2)}.place.r2 .r{color:var(--silver)}.place.r3 .r{color:var(--bronze)}
+.place.x{opacity:.6}
+.place.x .p{color:#ff8a91}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+
+/* breakdown */
+.scroll-x{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+.mx{border-collapse:collapse;min-width:100%;font-size:15px}
+.mx th,.mx td{padding:7px 10px;border-bottom:1px solid var(--line2);white-space:nowrap;text-align:center}
+.mx th{background:rgba(0,0,0,.45);position:sticky;top:0;font-size:12px;color:var(--muted)}
+.mx th img{width:34px;height:34px;object-fit:contain;display:block;margin:0 auto 2px}
+.mx td:first-child,.mx th:first-child{text-align:left;position:sticky;left:0;background:#1d0508;z-index:1;white-space:normal;min-width:150px;max-width:210px}
+.mx tr.tot td{font-family:Orbitron;font-weight:900;color:var(--gold2);background:rgba(217,181,74,.08)}
+.mx td.z{color:rgba(255,255,255,.25)}
+
+/* admin */
+.ed-list{display:flex;flex-direction:column;gap:6px}
+.ed-item{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:9px 12px;flex-wrap:wrap}
+.ed-item .nm{flex:1;min-width:180px}
+.ed-item .nm b{display:block}
+.ed-item .nm span{font-size:13px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pt-table{border-collapse:collapse;width:100%;max-width:520px}
+.pt-table th,.pt-table td{padding:4px 6px;text-align:center}
+.pt-table input{text-align:center;padding:6px}
+.team-row{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;margin-bottom:10px}
+.team-row img{width:44px;height:44px;object-fit:contain}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:14px}
+.modal-in{width:100%;max-width:640px;max-height:92vh;overflow:auto;background:linear-gradient(180deg,#2c070c,#170306);border:1px solid var(--line);border-radius:16px;padding:18px}
+.modal-in.narrow{max-width:400px}
+.modal-in h3{font-size:16px;margin-bottom:4px}
+.res-table{width:100%;border-collapse:collapse;margin-top:8px}
+.res-table th{font-size:12px;color:var(--muted);font-weight:600;padding:4px;text-align:center}
+.res-table th:first-child{text-align:left}
+.res-table td{padding:6px 4px;border-bottom:1px solid var(--line2);text-align:center}
+.res-table td:first-child{text-align:left}
+.res-table .tm{display:flex;align-items:center;gap:8px;font-weight:700;line-height:1.1}
+.res-table .tm img{width:32px;height:32px;object-fit:contain}
+.res-table select{min-width:74px;padding:7px 22px 7px 8px}
+.res-table .calc{font-family:Orbitron;font-size:12px;color:var(--gold2)}
+.warn{color:#ffc865;font-size:14px;margin-top:8px}
+.signin-logo{width:110px;height:110px;display:block;margin:0 auto 10px;filter:drop-shadow(0 8px 24px rgba(196,18,31,.5))}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a070b;border:1px solid var(--gold);padding:10px 16px;border-radius:10px;z-index:60;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.foot{text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
+.note{font-size:13px;color:var(--muted)}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .top-in{gap:8px;padding:8px 12px}
+  .brand h1{font-size:15px}
+  .logo-btn img{width:34px;height:34px}
+  .badge{font-size:9px;padding:4px 7px}
+  .podium{gap:7px}
+  .pod{padding:10px 4px}
+  .pod .nm{font-size:13px}
+  .pod .pt{font-size:16px}
+  .t-hide{display:none}
+  .t-team img{width:32px;height:32px}
+  .t-pts{font-size:15px;width:78px}
+  .table td{padding:8px 6px}
+  .grid{grid-template-columns:1fr}
+  main{padding:12px 12px 60px}
+  .res-table select{min-width:62px;font-size:14px}
+  .mx{font-size:13px}
+  .mx th,.mx td{padding:6px 7px}
+  .mx td:first-child,.mx th:first-child{min-width:120px;max-width:140px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <button class="logo-btn" id="secLogo" title="Surigao Education Center" aria-label="SEC logo — admin sign-in"><img src="assets/sec_logo.svg" alt="SEC logo"></button>
+    <div class="brand">
+      <h1 class="gold-text">PaSEClaban 2026</h1>
+      <small id="syncInfo">Loading…</small>
+    </div>
+    <span class="badge demo hidden" id="demoBadge">DEMO</span>
+    <span class="badge edit hidden" id="modeBadge">ADMIN</span>
+    <button class="btn sm ghost hidden" id="btnLogout">Sign out</button>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+<main id="view"></main>
+<div id="modalHost"></div>
+
+<script>
+/* =========================================================
+   CONFIG — paste the Apps Script Web App URL here.
+   Empty = DEMO MODE (data saved only in this browser).
+   ========================================================= */
+const CONFIG = { API_URL: '', DEMO_PASSWORD: 'sec2026', POLL_MS: 20000 };
+
+/* ---------- Point system: Guidelines Art. II Sec. 1 ---------- */
+const DEFAULT_POINTS = {
+  A: [50, 40, 32, 26, 21, 17, 13, 11, 9, 7],
+  B: [35, 28, 22, 18, 14, 12, 9, 7, 6, 5],
+  C: [25, 20, 16, 13, 10, 8, 6, 5, 4, 3]
+};
+
+/* ---------- Events: Annex A (Intramurals 2026) ---------- */
+function buildEvents() {
+  const out = [];
+  const add = (dept, name, cat, divs, type, subs) => divs.forEach(div => out.push({
+    id: (dept + '-' + name + '-' + (div || 'open')).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    dept, name, division: div, category: cat, type: type || 'single', subs: subs || [], status: 'upcoming', res: {}
+  }));
+  const MW = ['Men', 'Women'], MWX = ['Men', 'Women', 'Mixed'];
+  // College and High School
+  add('chs', 'Basketball', 'A', MW);
+  add('chs', 'Volleyball', 'A', MW);
+  add('chs', 'Sepak Takraw', 'A', ['']);
+  add('chs', 'Cheer Dance', 'A', ['']);
+  add('chs', 'Mr. and Ms. PaSEClaban', 'B', MW);
+  add('chs', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2']);
+  add('chs', 'Mobile Legends', 'B', ['']);
+  add('chs', 'Call of Duty Mobile', 'B', ['']);
+  add('chs', 'Table Tennis', 'B', MW, 'multi', ['Singles', 'Doubles']);
+  add('chs', 'Table Tennis', 'B', ['Mixed']);
+  add('chs', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
+  add('chs', 'Badminton', 'B', ['Mixed']);
+  add('chs', 'Pickleball', 'B', MWX);
+  add('chs', 'Swimming', 'B', MW, 'multi', ['Sub-event 1', 'Sub-event 2', 'Sub-event 3']);
+  add('chs', 'Bench Yell', 'B', ['']);
+  add('chs', 'Dance Sport – Latin Section', 'B', ['']);
+  add('chs', 'Dance Sport – Standard Section', 'B', ['']);
+  add('chs', 'Banner Raising', 'C', ['']);
+  // Elementary
+  add('elem', 'Basketball', 'A', ['Men']);
+  add('elem', 'Volleyball', 'A', MW);
+  add('elem', 'Mass Dance', 'A', ['']);
+  add('elem', 'Little Mr. and Ms. PaSEClaban', 'A', MW, 'multi', ['Candidate 1', 'Candidate 2']);
+  add('elem', 'Chess', 'B', MW, 'multi', ['Player 1', 'Player 2']);
+  add('elem', 'Table Tennis', 'B', MW, 'multi', ['Singles', 'Doubles']);
+  add('elem', 'Table Tennis', 'B', ['Mixed']);
+  add('elem', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
+  add('elem', 'Badminton', 'B', ['Mixed']);
+  add('elem', 'Swimming', 'B', MW, 'multi', ['Sub-event 1', 'Sub-event 2', 'Sub-event 3']);
+  add('elem', 'Dance Sport – Latin Section', 'B', ['']);
+  add('elem', 'Dance Sport – Standard Section', 'B', ['']);
+  add('elem', 'Banner Raising', 'C', ['']);
+  return out;
+}
+
+const DEFAULT_STATE = {
+  schema: 2,
+  depts: [
+    { id: 'chs',  name: 'College and High School' },
+    { id: 'elem', name: 'Elementary' }
+  ],
+  teams: [
+    { id: 'raptors',  name: 'Racing Raptors',        unit: '',            dept: 'chs',  logo: 'assets/logos/raptors.png' },
+    { id: 'mambas',   name: 'Phantom Mambas',        unit: '',            dept: 'chs',  logo: 'assets/logos/mambas.png' },
+    { id: 'griffins', name: 'Mighty Griffins',       unit: '',            dept: 'chs',  logo: 'assets/logos/griffins.png' },
+    { id: 'cerberus', name: 'Cerberus',              unit: '',            dept: 'chs',  logo: 'assets/logos/cerberus.png' },
+    { id: 'cyborgs',  name: 'CIT Cyborgs',           unit: 'CIT',         dept: 'chs',  logo: 'assets/logos/cyborgs.png' },
+    { id: 'hornets',  name: "D' Pugnacious Hornets", unit: 'Grade School', dept: 'elem', logo: 'assets/logos/hornets.png' },
+    { id: 'monarch',  name: 'Maverick Monarch',      unit: 'Montessori',  dept: 'elem', logo: 'assets/logos/monarch.png' }
+  ],
+  points: DEFAULT_POINTS,
+  announcement: '',
+  events: buildEvents(),
+  updatedAt: null,
+  updatedBy: null
+};
+
+/* ---------- Runtime ---------- */
+const S = { state: null, admin: false, password: '', editor: '', tab: 'overall', dept: 'chs', cat: 'All', evFilter: 'all', lastSync: null, poll: null };
+const DEMO = !CONFIG.API_URL;
+const DEMO_KEY = 'paseclaban2026_demo_v2';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const ORD = n => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+const f2 = n => (Math.round(n * 100) / 100).toFixed(2);
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } }
+
+/* ---------- Data layer ---------- */
+let memDemo = null;
+async function apiGet() {
+  if (DEMO) {
+    const raw = ls(DEMO_KEY);
+    if (raw) { try { return JSON.parse(raw); } catch (e) {} }
+    return memDemo || clone(DEFAULT_STATE);
+  }
+  const r = await fetch(CONFIG.API_URL + '?t=' + Date.now());
+  return (await r.json()).state;
+}
+async function apiPost(action, payload) {
+  if (DEMO) {
+    const pw = action === 'login' ? payload.password : S.password;
+    if (pw !== CONFIG.DEMO_PASSWORD) throw new Error('Invalid password');
+    let st = await apiGet();
+    if (action === 'login') return st;
+    st = applyLocal(st, action, payload);
+    st.updatedAt = new Date().toISOString(); st.updatedBy = S.editor || 'Admin';
+    memDemo = st; ls(DEMO_KEY, JSON.stringify(st));
+    return st;
+  }
+  const mirror = payload._mirror || null; delete payload._mirror;
+  const body = { action, password: action === 'login' ? payload.password : S.password, editor: S.editor, payload, mirror };
+  const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Save failed');
+  return j.state;
+}
+function applyLocal(st, action, p) {
+  if (action === 'replaceAll') return p.state;
+  if (action === 'saveEvent') { const i = st.events.findIndex(e => e.id === p.event.id); if (i >= 0) st.events[i] = p.event; else st.events.push(p.event); }
+  if (action === 'deleteEvent') st.events = st.events.filter(e => e.id !== p.id);
+  if (action === 'saveSettings') { st.teams = p.teams; st.points = p.points; st.announcement = p.announcement; }
+  return st;
+}
+async function refresh(silent) {
+  try {
+    let st = await apiGet();
+    if (!st) { st = clone(DEFAULT_STATE); if (S.admin) st = await apiPost('replaceAll', { state: st }); }
+    S.state = st; S.lastSync = new Date();
+    if (!$('.modal')) render();
+    updateSync();
+  } catch (e) { if (!silent) toast('Cannot load data. Check connection.'); updateSync(true); }
+}
+
+/* ---------- Scoring engine (Guidelines Art. III–VI) ---------- */
+const teamsOf = dept => S.state.teams.filter(t => t.dept === dept);
+const deptName = id => (S.state.depts.find(d => d.id === id) || {}).name || id;
+const table = cat => S.state.points[cat] || [];
+const ptAt = (cat, rank) => Number(table(cat)[rank - 1]) || 0;
+const divLabel = e => !e.division ? '' : (/Mr\. and Ms\./.test(e.name) ? (e.division === 'Men' ? (e.name.startsWith('Little') ? 'Little Mr.' : 'Mr.') : (e.name.startsWith('Little') ? 'Little Ms.' : 'Ms.')) : e.division === 'Mixed' ? 'Mixed' : e.division + "'s");
+const evTitle = e => e.name + (e.division ? ' — ' + divLabel(e) : '');
+
+// Tied teams share the points of the ranks they occupy, divided equally (Art. VI Sec. 1)
+function awardShared(cat, list) {
+  const out = {}, byRank = {};
+  list.forEach(x => (byRank[x.rank] = byRank[x.rank] || []).push(x.id));
+  Object.entries(byRank).forEach(([r, ids]) => {
+    r = +r; let sum = 0;
+    for (let k = 0; k < ids.length; k++) sum += ptAt(cat, r + k);
+    ids.forEach(id => out[id] = sum / ids.length);
+  });
+  return out;
+}
+
+// Returns rows: { team, rank, tied, points, flag, detail:[{label,rank,pts}], total }
+function computeEvent(e) {
+  const teams = teamsOf(e.dept);
+  const R = e.res || {};
+  let rows;
+  if (e.type === 'multi') {
+    rows = teams.map(t => {
+      const r = R[t.id] || {}; const p = r.p || [];
+      const detail = e.subs.map((lab, i) => {
+        const v = p[i];
+        if (v === 'D') return { label: lab, rank: 'D', pts: 0 };
+        const n = Number(v) || 0;
+        return { label: lab, rank: n || null, pts: n ? ptAt(e.category, n) : 0 };
+      });
+      return { team: t, flag: r.flag || '', detail, total: detail.reduce((a, d) => a + d.pts, 0) };
+    });
+    // Step 3: rank totals (teams with placement points only); DQ keeps its position vacant
+    const ranked = rows.filter(x => x.total > 0).sort((a, b) => b.total - a.total);
+    ranked.forEach((x, i) => { x.rank = (i && ranked[i - 1].total === x.total) ? ranked[i - 1].rank : i + 1; });
+    const live = ranked.filter(x => x.flag !== 'dq');
+    const aw = awardShared(e.category, live.map(x => ({ id: x.team.id, rank: x.rank })));
+    rows.forEach(x => x.points = x.flag === 'dq' ? 0 : (aw[x.team.id] || 0));
+  } else {
+    rows = teams.map(t => {
+      const r = R[t.id] || {};
+      return { team: t, flag: r.flag || '', rank: r.flag === 'def' ? null : (Number(r.rank) || null) };
+    });
+    const live = rows.filter(x => x.rank && x.flag !== 'dq');
+    const aw = awardShared(e.category, live.map(x => ({ id: x.team.id, rank: x.rank })));
+    rows.forEach(x => x.points = (x.flag === 'dq' || x.flag === 'def') ? 0 : (aw[x.team.id] || 0));
+  }
+  const cnt = {}; rows.forEach(x => { if (x.rank) cnt[x.rank] = (cnt[x.rank] || 0) + 1; });
+  rows.forEach(x => x.tied = x.rank && cnt[x.rank] > 1);
+  rows.sort((a, b) => (a.rank || 99) - (b.rank || 99) || b.points - a.points || a.team.name.localeCompare(b.team.name));
+  return rows;
+}
+const hasResults = e => Object.values(e.res || {}).some(r => r.rank || r.flag || (r.p || []).some(Boolean));
+
+function overall(dept) {
+  const rows = teamsOf(dept).map(t => ({ team: t, pts: 0, m: [0, 0, 0] }));
+  const idx = Object.fromEntries(rows.map(r => [r.team.id, r]));
+  S.state.events.filter(e => e.dept === dept && e.status === 'final').forEach(e => {
+    computeEvent(e).forEach(x => {
+      const o = idx[x.team.id]; if (!o) return;
+      o.pts += x.points;
+      if (x.flag !== 'dq' && x.rank >= 1 && x.rank <= 3) o.m[x.rank - 1]++;
+    });
+  });
+  rows.forEach(r => r.pts = Math.round(r.pts * 100) / 100);
+  rows.sort((a, b) => b.pts - a.pts || a.team.name.localeCompare(b.team.name));
+  rows.forEach((r, i) => r.rank = (i && rows[i - 1].pts === r.pts) ? rows[i - 1].rank : i + 1);
+  return rows;
+}
+
+/* ---------- Render ---------- */
+function tabs() {
+  const t = [['overall', 'Overall'], ['events', 'Per Event'], ['breakdown', 'Breakdown']];
+  if (S.admin) t.push(['manage', 'Manage Events'], ['settings', 'Settings']);
+  return t;
+}
+function deptSeg() {
+  return `<div class="seg">${S.state.depts.map(d => `<button class="${S.dept === d.id ? 'on' : ''}" data-dept="${d.id}">${esc(d.name)}</button>`).join('')}</div>`;
+}
+function render() {
+  if (!S.state) return;
+  $('#tabs').innerHTML = tabs().map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-tab="${k}">${l}</button>`).join('');
+  const ann = S.state.announcement ? `<div class="announce">${esc(S.state.announcement)}</div>` : '';
+  const V = { overall: vOverall, events: vEvents, breakdown: vBreakdown, manage: vManage, settings: vSettings }[S.tab] || vOverall;
+  $('#view').innerHTML = (S.tab === 'manage' || S.tab === 'settings' ? '' : ann) + V() +
+    `<div class="foot">Surigao Education Center · PaSEClaban 2026 · October 27–30, 2026</div>`;
+}
+
+function vOverall() {
+  const rows = overall(S.dept);
+  const max = Math.max(1, ...rows.map(r => r.pts));
+  const evs = S.state.events.filter(e => e.dept === S.dept);
+  const fin = evs.filter(e => e.status === 'final').length;
+  const top = rows.slice(0, 3);
+  return `
+  <div class="hero">
+    <div class="school">SURIGAO EDUCATION CENTER</div>
+    <h2 class="gold-text">PaSEClaban 2026</h2>
+    <div class="theme">“Unleash the Surge: Driven by Grit, Break the Limits, One Unstoppable Spirit”</div>
+    <div class="date">OCTOBER 27–30, 2026</div>
+  </div>
+  <div class="sec-title"><h2 class="silver-text">OVERALL STANDINGS</h2></div>
+  <div class="row" style="margin-bottom:12px">${deptSeg()}<span class="spacer"></span><span class="muted" style="font-size:14px">${fin} of ${evs.length} events final</span></div>
+  ${rows.some(r => r.pts) ? '' : '<!--'}<div class="podium ${top.length === 2 ? 'two' : ''}">${top.map((r, i) => `
+    <div class="pod p${i + 1}"><div class="rk">${r.rank}</div><img src="${r.team.logo}" alt="">
+      <div class="nm">${esc(r.team.name)}</div>${r.team.unit ? `<div class="un">${esc(r.team.unit)}</div>` : ''}
+      <div class="pt ${i === 0 ? 'gold-text' : 'silver-text'}">${f2(r.pts)}</div></div>`).join('')}</div>${rows.some(r => r.pts) ? '' : '-->'}
+  <div class="panel" style="padding:6px 10px">
+    <table class="table"><thead><tr><th>#</th><th>TEAM</th>
+      <th class="t-num t-hide"><span class="medal m1"></span>1st</th><th class="t-num t-hide"><span class="medal m2"></span>2nd</th><th class="t-num t-hide"><span class="medal m3"></span>3rd</th>
+      <th style="text-align:right">POINTS</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td class="t-rank">${r.rank}</td>
+      <td><div class="t-team"><img src="${r.team.logo}" alt=""><div style="flex:1;min-width:0">${esc(r.team.name)}${r.team.unit ? `<span class="un">${esc(r.team.unit)}</span>` : ''}<div class="bar"><i style="width:${r.pts / max * 100}%"></i></div></div></div></td>
+      <td class="t-num t-hide">${r.m[0]}</td><td class="t-num t-hide">${r.m[1]}</td><td class="t-num t-hide">${r.m[2]}</td>
+      <td class="t-pts"><span class="gold-text">${f2(r.pts)}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+  <p class="note">Overall points = sum of points from all events marked <b>Final</b>. Each department is tabulated separately. 1st/2nd/3rd = event placements (display only).</p>`;
+}
+
+function placeRow(e, x) {
+  let r = x.rank ? (x.tied ? 'T-' : '') + ORD(x.rank) : '—';
+  let p = f2(x.points);
+  let cls = 'place r' + (x.flag ? '' : (x.rank || 0));
+  if (x.flag === 'dq') { cls = 'place x'; p = 'DQ · 0.00'; }
+  if (x.flag === 'def') { cls = 'place x'; r = '—'; p = 'Default · 0.00'; }
+  const sub = e.type === 'multi' ? `<small>${x.detail.map(d => `${esc(d.label)}: ${d.rank === 'D' ? 'Def' : d.rank ? ORD(d.rank) + ' = ' + d.pts : '—'}`).join(' · ')} · Total ${x.total}</small>` : (x.team.unit ? `<small>${esc(x.team.unit)}</small>` : '');
+  return `<div class="${cls}"><span class="r">${r}</span><img src="${x.team.logo}" alt=""><span class="n">${esc(x.team.name)}${sub}</span><span class="p">${p}</span></div>`;
+}
+
+function eventCard(e) {
+  const rows = computeEvent(e);
+  const any = hasResults(e);
+  return `<div class="ev">
+    <div class="ev-h"><b>${esc(e.division ? divLabel(e) : 'Result')}</b><span class="st ${e.status}">${e.status.toUpperCase()}</span></div>
+    ${any ? `<div class="places">${rows.filter(x => x.rank || x.flag).map(x => placeRow(e, x)).join('')}</div>` : `<div class="muted" style="font-size:14px">No results yet.</div>`}
+    ${S.admin ? `<div class="row"><button class="btn sm gold" data-res="${e.id}">Enter results</button></div>` : ''}
+  </div>`;
+}
+
+function vEvents() {
+  let evs = S.state.events.filter(e => e.dept === S.dept);
+  if (S.cat !== 'All') evs = evs.filter(e => e.category === S.cat);
+  if (S.evFilter !== 'all') evs = evs.filter(e => e.status === S.evFilter);
+  const groups = [];
+  evs.forEach(e => { let g = groups.find(x => x.name === e.name); if (!g) groups.push(g = { name: e.name, cat: e.category, type: e.type, list: [] }); g.list.push(e); });
+  const ord = { Men: 0, Women: 1, Mixed: 2, '': 3 };
+  groups.forEach(g => g.list.sort((a, b) => ord[a.division] - ord[b.division]));
+  groups.sort((a, b) => a.cat.localeCompare(b.cat));
+  return `
+  <div class="sec-title"><h2 class="silver-text">RANKINGS PER EVENT</h2></div>
+  <div class="row" style="margin-bottom:10px">${deptSeg()}</div>
+  <div class="chips" style="margin-bottom:6px">${['All', 'A', 'B', 'C'].map(c => `<button class="chip ${S.cat === c ? 'on' : ''}" data-cat="${c}">${c === 'All' ? 'All categories' : 'Category ' + c}</button>`).join('')}</div>
+  <div class="chips" style="margin-bottom:14px">${[['all', 'All status'], ['final', 'Final'], ['ongoing', 'Ongoing'], ['upcoming', 'Upcoming']].map(([k, l]) => `<button class="chip ${S.evFilter === k ? 'on' : ''}" data-evf="${k}">${l}</button>`).join('')}</div>
+  ${groups.length ? groups.map(g => `
+    <div class="ev-group">
+      <div class="ev-group-h"><h3>${esc(g.name)}</h3><span class="cat ${g.cat}">CAT ${g.cat}</span>${g.list.some(e => e.type === 'multi') ? '<span class="type">Multi-representative</span>' : ''}</div>
+      <div class="grid">${g.list.map(eventCard).join('')}</div>
+    </div>`).join('') : '<div class="empty">No events in this filter.</div>'}`;
+}
+
+function vBreakdown() {
+  const teams = teamsOf(S.dept);
+  const evs = S.state.events.filter(e => e.dept === S.dept);
+  const tot = Object.fromEntries(teams.map(t => [t.id, 0]));
+  const body = evs.map(e => {
+    const fin = e.status === 'final';
+    const pts = fin ? Object.fromEntries(computeEvent(e).map(x => [x.team.id, x])) : {};
+    return `<tr><td>${esc(evTitle(e))} <span class="cat ${e.category}" style="font-size:9px;padding:2px 5px">${e.category}</span></td>${teams.map(t => {
+      const x = pts[t.id];
+      if (!fin) return `<td class="z">·</td>`;
+      tot[t.id] += x.points;
+      return `<td class="${x.points ? '' : 'z'}">${x.flag === 'dq' ? 'DQ' : x.flag === 'def' ? 'Def' : f2(x.points)}</td>`;
+    }).join('')}</tr>`;
+  }).join('');
+  return `
+  <div class="sec-title"><h2 class="silver-text">POINTS BREAKDOWN</h2></div>
+  <div class="row" style="margin-bottom:12px">${deptSeg()}</div>
+  <div class="scroll-x"><table class="mx">
+    <thead><tr><th>EVENT</th>${teams.map(t => `<th><img src="${t.logo}" alt="">${esc(t.unit || t.name)}</th>`).join('')}</tr></thead>
+    <tbody>${body}<tr class="tot"><td>OVERALL</td>${teams.map(t => `<td>${f2(tot[t.id])}</td>`).join('')}</tr></tbody>
+  </table></div>
+  <p class="note">Only events marked Final show points. “·” = not yet final.</p>`;
+}
+
+function vManage() {
+  const evs = S.state.events.filter(e => e.dept === S.dept);
+  return `
+  <div class="sec-title"><h2 class="silver-text">MANAGE EVENTS</h2><span class="spacer"></span><button class="btn sm primary" id="btnAdd">+ Add event</button></div>
+  <div class="row" style="margin-bottom:12px">${deptSeg()}</div>
+  <div class="ed-list">${evs.map(e => `
+    <div class="ed-item"><div class="nm"><b>${esc(evTitle(e))}</b><span>Category ${e.category} · ${e.type === 'multi' ? 'Multi (' + esc(e.subs.join(', ')) + ')' : 'Single'}</span></div>
+      <span class="st ${e.status}">${e.status.toUpperCase()}</span>
+      <button class="btn sm gold" data-res="${e.id}">Results</button>
+      <button class="btn sm" data-edit="${e.id}">Edit</button></div>`).join('')}
+  </div>`;
+}
+
+function vSettings() {
+  const st = S.state;
+  return `
+  <div class="sec-title"><h2 class="silver-text">SETTINGS</h2></div>
+  <div class="panel" style="margin-bottom:14px">
+    <h3 style="font-size:13px;margin-bottom:8px">POINTS PER RANK (Art. II Sec. 1)</h3>
+    <table class="pt-table"><thead><tr><th>Rank</th><th>Cat A</th><th>Cat B</th><th>Cat C</th></tr></thead><tbody>
+    ${Array.from({ length: 10 }, (_, i) => `<tr><td>${ORD(i + 1)}</td>${['A', 'B', 'C'].map(c => `<td><input class="input" type="number" step="any" min="0" data-pt="${c}:${i}" value="${st.points[c][i] ?? 0}"></td>`).join('')}</tr>`).join('')}
+    </tbody></table>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <h3 style="font-size:13px;margin-bottom:10px">TEAMS</h3>
+    ${st.teams.map(t => `<div class="team-row"><img src="${t.logo}" alt=""><div class="form-grid">
+      <input class="input" data-tn="${t.id}" value="${esc(t.name)}" placeholder="Team name">
+      <input class="input" data-tu="${t.id}" value="${esc(t.unit)}" placeholder="College / unit (e.g. CEA)">
+      <select class="input" data-td="${t.id}">${st.depts.map(d => `<option value="${d.id}" ${t.dept === d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select>
+    </div></div>`).join('')}
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="field"><label>Announcement banner (blank = hidden)</label><textarea class="input" id="setAnn" rows="2">${esc(st.announcement || '')}</textarea></div>
+  </div>
+  <div class="row"><button class="btn primary" id="btnSaveSet">Save settings</button><span class="spacer"></span>
+    <button class="btn sm" id="btnExport">Export backup</button>
+    <label class="btn sm" style="cursor:pointer">Import backup<input type="file" accept=".json" id="fileImport" hidden></label>
+    ${DEMO ? '<button class="btn sm danger" id="btnReset">Reset demo</button>' : ''}</div>`;
+}
+
+/* ---------- Modals ---------- */
+function modal(html, narrow) { $('#modalHost').innerHTML = `<div class="modal"><div class="modal-in ${narrow ? 'narrow' : ''}">${html}</div></div>`; }
+function closeModal() { $('#modalHost').innerHTML = ''; render(); }
+
+function openSignIn() {
+  modal(`
+    <img class="signin-logo" src="assets/sec_logo.svg" alt="SEC logo">
+    <h3 class="gold-text" style="text-align:center;margin-bottom:12px">ADMIN SIGN-IN</h3>
+    <form id="signForm" autocomplete="off">
+      <div class="field"><label>Name</label><input class="input" id="sgName" maxlength="40" placeholder="e.g. Tabulator 1"></div>
+      <div class="field"><label>Password</label><input class="input" id="sgPass" type="password"></div>
+      <div class="err" id="sgErr"></div>
+      <div class="row"><button type="button" class="btn ghost" data-close>Cancel</button><span class="spacer"></span><button class="btn primary" id="sgBtn" type="submit">Sign in</button></div>
+    </form>`, true);
+  setTimeout(() => $('#sgName').focus(), 50);
+  $('#signForm').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const pw = $('#sgPass').value, name = $('#sgName').value.trim() || 'Admin';
+    $('#sgBtn').disabled = true; $('#sgErr').textContent = '';
+    try {
+      S.state = await apiPost('login', { password: pw }) || S.state;
+      S.password = pw; S.editor = name; ss('pas_pw', pw); ss('pas_ed', name);
+      setAdmin(true); $('#modalHost').innerHTML = ''; render(); toast('Signed in as ' + name);
+    } catch (e) { $('#sgErr').textContent = e.message === 'Invalid password' ? 'Incorrect password.' : 'Cannot reach server.'; $('#sgBtn').disabled = false; }
+  });
+}
+
+function rankOptions(max, cur, extra) {
+  let o = `<option value="">—</option>`;
+  for (let i = 1; i <= max; i++) o += `<option value="${i}" ${String(cur) === String(i) ? 'selected' : ''}>${ORD(i)}</option>`;
+  return o + (extra || '');
+}
+
+function openResults(id) {
+  const e = S.state.events.find(x => x.id === id);
+  const teams = teamsOf(e.dept);
+  const R = e.res || {};
+  const multi = e.type === 'multi';
+  const maxRank = multi ? 10 : teams.length;
+  modal(`
+    <h3 class="gold-text">${esc(evTitle(e))}</h3>
+    <div class="muted" style="font-size:14px">${esc(deptName(e.dept))} · Category ${e.category} · ${multi ? 'Multi-representative' : 'Single-representative'}</div>
+    <table class="res-table"><thead><tr><th>Team</th>
+      ${multi ? e.subs.map(s => `<th>${esc(s)}</th>`).join('') : '<th>Official rank</th>'}
+      <th>Status</th><th>Pts</th></tr></thead><tbody>
+    ${teams.map(t => { const r = R[t.id] || {}; return `<tr data-team="${t.id}">
+      <td><div class="tm"><img src="${t.logo}" alt=""><span>${esc(t.name)}</span></div></td>
+      ${multi ? e.subs.map((_, i) => `<td><select class="input" data-sub="${i}">${rankOptions(maxRank, (r.p || [])[i], `<option value="D" ${(r.p || [])[i] === 'D' ? 'selected' : ''}>Default</option>`)}</select></td>`).join('')
+              : `<td><select class="input" data-rank>${rankOptions(maxRank, r.rank)}</select></td>`}
+      <td><select class="input" data-flag><option value="">OK</option>${multi ? '' : `<option value="def" ${r.flag === 'def' ? 'selected' : ''}>Default</option>`}<option value="dq" ${r.flag === 'dq' ? 'selected' : ''}>DQ</option></select></td>
+      <td class="calc" data-calc>—</td></tr>`; }).join('')}
+    </tbody></table>
+    <div class="field" style="margin-top:12px"><label>Status</label>
+      <select class="input" id="resStatus">${['upcoming', 'ongoing', 'final'].map(s => `<option value="${s}" ${e.status === s ? 'selected' : ''}>${s[0].toUpperCase() + s.slice(1)}${s === 'final' ? ' (counts in overall)' : ''}</option>`).join('')}</select></div>
+    <div class="warn" id="resWarn"></div>
+    <p class="note">${multi ? 'Placement points per sub-event are added, teams are re-ranked by total, then awarded by rank (Art. IV).' : 'Enter the official rank. Same rank on two teams = tie; they share the points of the ranks they occupy.'} DQ: 0 points, rank left vacant (Art. VI Sec. 4).</p>
+    <div class="row" style="margin-top:8px"><button class="btn ghost" data-close>Cancel</button><span class="spacer"></span><button class="btn primary" id="resSave" data-id="${e.id}">Save results</button></div>`);
+  const upd = () => {
+    const tmp = clone(e); tmp.res = collectRes(e);
+    const rows = computeEvent(tmp);
+    rows.forEach(x => { const c = $(`tr[data-team="${x.team.id}"] [data-calc]`); if (c) c.textContent = (x.rank || x.flag) ? (x.flag === 'dq' ? 'DQ' : f2(x.points)) : '—'; });
+    let w = '';
+    if (!multi) {
+      const ranks = rows.filter(x => x.rank).map(x => x.rank);
+      const dup = [...new Set(ranks.filter((v, i) => ranks.indexOf(v) !== i))];
+      if (dup.length) w = 'Tie at ' + dup.map(ORD).join(', ') + ' — points shared.';
+    } else if (rows.some(x => x.tied)) w = 'Tied totals — points shared.';
+    $('#resWarn').textContent = w;
+  };
+  $$('.res-table select').forEach(s => s.addEventListener('change', upd));
+  upd();
+}
+
+function collectRes(e) {
+  const res = {};
+  $$('.res-table tr[data-team]').forEach(tr => {
+    const id = tr.dataset.team, flag = tr.querySelector('[data-flag]').value;
+    if (e.type === 'multi') {
+      const p = [...tr.querySelectorAll('[data-sub]')].map(s => s.value === 'D' ? 'D' : (Number(s.value) || ''));
+      if (flag || p.some(Boolean)) res[id] = { p, flag };
+    } else {
+      const rank = Number(tr.querySelector('[data-rank]').value) || null;
+      if (flag || rank) res[id] = { rank, flag };
+    }
+  });
+  return res;
+}
+
+function openEventForm(id) {
+  const e = id ? S.state.events.find(x => x.id === id) : { id: '', dept: S.dept, name: '', division: '', category: 'B', type: 'single', subs: [], status: 'upcoming', res: {} };
+  modal(`
+    <h3 class="gold-text" style="margin-bottom:12px">${id ? 'EDIT EVENT' : 'ADD EVENT'}</h3>
+    <div class="field"><label>Event name</label><input class="input" id="fName" value="${esc(e.name)}" placeholder="e.g. Basketball"></div>
+    <div class="form-grid">
+      <div class="field"><label>Department</label><select class="input" id="fDept">${S.state.depts.map(d => `<option value="${d.id}" ${e.dept === d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>Division</label><select class="input" id="fDiv">${[['', 'None / Open'], ['Men', "Men's"], ['Women', "Women's"], ['Mixed', 'Mixed']].map(([v, l]) => `<option value="${v}" ${e.division === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Category</label><select class="input" id="fCat">${['A', 'B', 'C'].map(c => `<option ${e.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Type</label><select class="input" id="fType"><option value="single" ${e.type === 'single' ? 'selected' : ''}>Single-representative</option><option value="multi" ${e.type === 'multi' ? 'selected' : ''}>Multi-representative</option></select></div>
+    </div>
+    <div class="field" id="fSubsWrap"><label>Sub-events / entrants (comma-separated)</label><input class="input" id="fSubs" value="${esc(e.subs.join(', '))}" placeholder="e.g. Singles, Doubles"></div>
+    ${id && hasResults(e) ? '<div class="warn">This event has results. Changing department, type or sub-events may clear them.</div>' : ''}
+    <div class="row" style="margin-top:10px">${id ? `<button class="btn danger" id="fDel" data-id="${e.id}">Delete</button>` : ''}<span class="spacer"></span>
+      <button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="fSave" data-id="${e.id}">Save</button></div>`);
+  const tog = () => $('#fSubsWrap').classList.toggle('hidden', $('#fType').value !== 'multi');
+  $('#fType').addEventListener('change', tog); tog();
+}
+
+/* ---------- Save ---------- */
+function mirrorRows(st) {
+  // Readable rows for the Google Sheet (Standings + Results tabs)
+  const prev = S.state; S.state = st;
+  const standings = [['Department', 'Rank', 'Team', 'Unit', 'Points']];
+  st.depts.forEach(d => overall(d.id).forEach(r => standings.push([d.name, r.rank, r.team.name, r.team.unit, r.pts])));
+  const results = [['Department', 'Event', 'Category', 'Type', 'Status', 'Team', 'Rank', 'Flag', 'Detail', 'Points']];
+  st.events.forEach(e => computeEvent(e).forEach(x => results.push([deptName(e.dept), evTitle(e), e.category, e.type, e.status, x.team.name, x.rank || '', x.flag || '',
+    e.type === 'multi' ? x.detail.map(dd => dd.label + ':' + (dd.rank || '-')).join(' ') : '', Math.round(x.points * 100) / 100])));
+  S.state = prev;
+  return { standings, results };
+}
+
+async function save(action, payload, msg) {
+  const btns = $$('.modal button, #btnSaveSet'); btns.forEach(b => b.disabled = true);
+  try {
+    if (!DEMO) {
+      const preview = applyLocal(clone(S.state), action, clone(payload));
+      payload._mirror = mirrorRows(preview);
+    }
+    S.state = await apiPost(action, payload);
+    $('#modalHost').innerHTML = ''; render(); updateSync(); toast(msg || 'Saved');
+  } catch (err) { toast(err.message || 'Save failed'); btns.forEach(b => b.disabled = false); }
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('button,[data-close]'); if (!el) return;
+  const d = el.dataset;
+  if (el.id === 'secLogo') { if (!S.admin) openSignIn(); else { S.tab = 'overall'; render(); } return; }
+  if (d.tab) { S.tab = d.tab; render(); scrollTo(0, 0); }
+  else if (d.dept) { S.dept = d.dept; render(); }
+  else if (d.cat) { S.cat = d.cat; render(); }
+  else if (d.evf) { S.evFilter = d.evf; render(); }
+  else if (d.res) openResults(d.res);
+  else if (d.edit) openEventForm(d.edit);
+  else if (d.close !== undefined) closeModal();
+  else if (el.id === 'btnAdd') openEventForm();
+  else if (el.id === 'btnLogout') { setAdmin(false); ss('pas_pw', null); ss('pas_ed', null); S.password = ''; if (S.tab === 'manage' || S.tab === 'settings') S.tab = 'overall'; render(); toast('Signed out'); }
+  else if (el.id === 'resSave') {
+    const e = clone(S.state.events.find(x => x.id === d.id));
+    e.res = collectRes(e); e.status = $('#resStatus').value;
+    save('saveEvent', { event: e }, 'Results saved');
+  }
+  else if (el.id === 'fSave') {
+    const name = $('#fName').value.trim(); if (!name) { toast('Enter event name'); return; }
+    const old = d.id ? S.state.events.find(x => x.id === d.id) : null;
+    const e = old ? clone(old) : { id: 'ev-' + Date.now().toString(36), status: 'upcoming', res: {} };
+    const nd = { name, dept: $('#fDept').value, division: $('#fDiv').value, category: $('#fCat').value, type: $('#fType').value,
+      subs: $('#fType').value === 'multi' ? $('#fSubs').value.split(',').map(s => s.trim()).filter(Boolean) : [] };
+    if (nd.type === 'multi' && !nd.subs.length) { toast('Enter at least one sub-event'); return; }
+    if (old && (old.dept !== nd.dept || old.type !== nd.type || old.subs.join('|') !== nd.subs.join('|'))) e.res = {};
+    Object.assign(e, nd);
+    save('saveEvent', { event: e }, old ? 'Event updated' : 'Event added');
+  }
+  else if (el.id === 'fDel') { if (confirm('Delete this event and its results?')) save('deleteEvent', { id: d.id }, 'Event deleted'); }
+  else if (el.id === 'btnSaveSet') {
+    const st = S.state, points = { A: [], B: [], C: [] };
+    $$('[data-pt]').forEach(i => { const [c, k] = i.dataset.pt.split(':'); points[c][+k] = Number(i.value) || 0; });
+    const teams = st.teams.map(t => ({ ...t, name: $(`[data-tn="${t.id}"]`).value.trim() || t.name, unit: $(`[data-tu="${t.id}"]`).value.trim(), dept: $(`[data-td="${t.id}"]`).value }));
+    save('saveSettings', { teams, points, announcement: $('#setAnn').value.trim() }, 'Settings saved');
+  }
+  else if (el.id === 'btnExport') {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(S.state, null, 2)], { type: 'application/json' }));
+    a.download = 'paseclaban2026_backup_' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.json'; a.click();
+  }
+  else if (el.id === 'btnReset') { if (confirm('Reset demo data to defaults?')) save('replaceAll', { state: clone(DEFAULT_STATE) }, 'Demo reset'); }
+});
+document.addEventListener('change', async ev => {
+  if (ev.target.id !== 'fileImport') return;
+  const f = ev.target.files[0]; if (!f) return;
+  try { const st = JSON.parse(await f.text()); if (!st.teams || !st.events) throw 0;
+    if (confirm('Replace ALL current data with this backup?')) save('replaceAll', { state: st }, 'Backup imported');
+  } catch (e) { toast('Invalid backup file'); }
+});
+
+function setAdmin(on) {
+  S.admin = on;
+  $('#modeBadge').classList.toggle('hidden', !on);
+  $('#btnLogout').classList.toggle('hidden', !on);
+  $('#secLogo').title = on ? 'Surigao Education Center' : 'Surigao Education Center';
+}
+function updateSync(err) {
+  const el = $('#syncInfo'); if (!S.state) return;
+  const u = S.state.updatedAt ? new Date(S.state.updatedAt) : null;
+  el.textContent = err ? 'Offline — showing last loaded data'
+    : u ? 'Updated ' + u.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + (S.admin && S.state.updatedBy ? ' by ' + S.state.updatedBy : '')
+    : 'Official Tabulation · No results yet';
+}
+let toastT;
+function toast(m) { $$('.toast').forEach(t => t.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 2600); }
+
+/* ---------- Boot: view mode by default ---------- */
+$('#demoBadge').classList.toggle('hidden', !DEMO);
+if (ss('pas_pw')) { S.password = ss('pas_pw'); S.editor = ss('pas_ed') || 'Admin'; setAdmin(true); }
+refresh();
+S.poll = setInterval(() => refresh(true), CONFIG.POLL_MS);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
+</script>
+</body>
+</html>
