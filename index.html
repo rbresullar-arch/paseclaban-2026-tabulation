@@ -308,7 +308,7 @@ function buildEvents() {
   add('elem', 'Table Tennis', 'B', ['Mixed']);
   add('elem', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('elem', 'Badminton', 'B', ['Mixed']);
-  add('elem', 'Swimming', 'B', MW, 'multi', SWIM);
+  add('elem', 'Swimming', 'B', MW, 'multi', []);   // sub-events: pending list
   add('elem', 'Dance Sport – Latin Section', 'B', ['']);
   add('elem', 'Dance Sport – Standard Section', 'B', ['']);
   add('elem', 'Banner Raising', 'C', ['']);
@@ -340,7 +340,7 @@ const DEFAULT_STATE = {
 /* ---------- Runtime ---------- */
 const S = { state: null, admin: false, password: '', editor: '', tab: 'overall', dept: 'chs', cat: 'All', evFilter: 'all', lastSync: null, poll: null };
 const DEMO = !CONFIG.API_URL;
-const DEMO_KEY = 'paseclaban2026_demo_v4';
+const DEMO_KEY = 'paseclaban2026_demo_v5';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
