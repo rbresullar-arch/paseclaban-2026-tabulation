@@ -211,6 +211,36 @@ details.subd summary{cursor:pointer;color:var(--gold2);font-weight:700;font-size
 .foot{text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
 .note{font-size:13px;color:var(--muted)}
 
+/* ---------- motion (subtle) ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes glow{0%,100%{box-shadow:0 0 22px rgba(217,181,74,.14)}50%{box-shadow:0 0 34px rgba(217,181,74,.30)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+#view.enter .hero,#view.enter .sec-title,#view.enter .announce,#view.enter .pod,#view.enter .table tbody tr,
+#view.enter .ev-group,#view.enter .ed-item,#view.enter .panel,#view.enter .scroll-x,#view.enter .chips,#view.enter .row{
+  animation:rise .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 50ms)}
+.hero h2{background-image:linear-gradient(100deg,#9c7a1e 0%,var(--gold) 20%,var(--gold2) 30%,var(--gold) 40%,#9c7a1e 60%,var(--gold) 80%,#9c7a1e 100%);
+  background-size:200% 100%;animation:shimmer 7s linear infinite}
+.pod.p1{animation:glow 4s ease-in-out infinite}
+#view.enter .pod.p1{animation:rise .5s cubic-bezier(.2,.7,.2,1) both,glow 4s ease-in-out .6s infinite;animation-delay:calc(var(--i,0) * 50ms),.6s}
+.bar i{transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.modal{animation:fadeIn .18s ease-out}
+.modal-in{animation:pop .24s cubic-bezier(.2,.7,.2,1)}
+.toast{animation:toastIn .25s cubic-bezier(.2,.7,.2,1)}
+.logo-btn{transition:transform .2s,filter .2s}
+.logo-btn:hover{transform:scale(1.06);filter:drop-shadow(0 0 8px rgba(217,181,74,.45))}
+nav.tabs button{transition:color .2s,border-color .2s}
+.seg button,.chip{transition:background .2s,color .2s,border-color .2s}
+.ev,.pod,.ed-item{transition:transform .2s,border-color .2s}
+.ev:hover,.ed-item:hover{border-color:var(--line)}
+.pod:hover{transform:translateY(-2px)}
+.st.ongoing::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc865;margin-right:5px;vertical-align:1px;animation:pulse 1.4s ease-in-out infinite}
+.t-pts span,.pod .pt{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+
 @media (max-width:640px){
   body{font-size:16px}
   .top-in{gap:8px;padding:8px 12px}
@@ -257,7 +287,7 @@ details.subd summary{cursor:pointer;color:var(--gold2);font-weight:700;font-size
    CONFIG — paste the Apps Script Web App URL here.
    Empty = DEMO MODE (data saved only in this browser).
    ========================================================= */
-const CONFIG = { API_URL: '', DEMO_PASSWORD: 'sec2026', POLL_MS: 20000 };
+const CONFIG = { API_URL: '', DEMO_USER: 'admin', DEMO_PASSWORD: 'sec2026', POLL_MS: 20000 };
 
 /* ---------- Point system: Guidelines Art. II Sec. 1 ---------- */
 const DEFAULT_POINTS = {
@@ -364,7 +394,8 @@ async function apiGet() {
 async function apiPost(action, payload) {
   if (DEMO) {
     const pw = action === 'login' ? payload.password : S.password;
-    if (pw !== CONFIG.DEMO_PASSWORD) throw new Error('Invalid password');
+    const un = action === 'login' ? payload.username : S.editor;
+    if (un !== CONFIG.DEMO_USER || pw !== CONFIG.DEMO_PASSWORD) throw new Error('Invalid username or password');
     let st = await apiGet();
     if (action === 'login') return st;
     st = applyLocal(st, action, payload);
@@ -373,7 +404,9 @@ async function apiPost(action, payload) {
     return st;
   }
   const mirror = payload._mirror || null; delete payload._mirror;
-  const body = { action, password: action === 'login' ? payload.password : S.password, editor: S.editor, payload, mirror };
+  const body = action === 'login'
+    ? { action, username: payload.username, password: payload.password }
+    : { action, username: S.editor, password: S.password, payload, mirror };
   const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Save failed');
@@ -390,8 +423,9 @@ async function refresh(silent) {
   try {
     let st = await apiGet();
     if (!st) { st = clone(DEFAULT_STATE); if (S.admin) st = await apiPost('replaceAll', { state: st }); }
+    const changed = !S.state || st.updatedAt !== S.state.updatedAt;
     S.state = st; S.lastSync = new Date();
-    if (!$('.modal')) render();
+    if (!$('.modal') && (!silent || changed)) render(!silent);
     updateSync();
   } catch (e) { if (!silent) toast('Cannot load data. Check connection.'); updateSync(true); }
 }
@@ -494,13 +528,36 @@ function tabs() {
 function deptSeg() {
   return `<div class="seg">${S.state.depts.map(d => `<button class="${S.dept === d.id ? 'on' : ''}" data-dept="${d.id}">${esc(d.name)}</button>`).join('')}</div>`;
 }
-function render() {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function render(anim = true) {
   if (!S.state) return;
   $('#tabs').innerHTML = tabs().map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-tab="${k}">${l}</button>`).join('');
   const ann = S.state.announcement ? `<div class="announce">${esc(S.state.announcement)}</div>` : '';
   const V = { overall: vOverall, events: vEvents, breakdown: vBreakdown, manage: vManage, settings: vSettings }[S.tab] || vOverall;
   $('#view').innerHTML = (S.tab === 'manage' || S.tab === 'settings' ? '' : ann) + V() +
     `<div class="foot">Surigao Education Center · PaSEClaban 2026 · October 27–30, 2026</div>`;
+  if (anim && !REDUCED) animateView();
+}
+
+function animateView() {
+  const v = $('#view');
+  v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter');
+  let i = 0;
+  v.querySelectorAll('.hero,.sec-title,.announce,.pod,.table tbody tr,.ev-group,.ed-item,.panel,.scroll-x,.chips,.row')
+    .forEach(el => el.style.setProperty('--i', Math.min(i++, 14)));
+  // bars grow from zero
+  v.querySelectorAll('.bar i[data-w]').forEach(b => { b.style.width = '0%'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => v.querySelectorAll('.bar i[data-w]').forEach(b => b.style.width = b.dataset.w + '%')));
+  // points count up
+  const els = [...v.querySelectorAll('[data-count]')].map(el => ({ el, to: Number(el.dataset.count) || 0 }));
+  if (!els.length) return;
+  const t0 = performance.now(), dur = 900, ease = t => 1 - Math.pow(1 - t, 3);
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    els.forEach(o => o.el.textContent = f2(o.to * ease(k)));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 function vOverall() {
@@ -521,15 +578,15 @@ function vOverall() {
   ${rows.some(r => r.pts) ? '' : '<!--'}<div class="podium ${top.length === 2 ? 'two' : ''}">${top.map((r, i) => `
     <div class="pod p${i + 1}"><div class="rk">${r.rank}</div><img src="${r.team.logo}" alt="">
       <div class="nm">${esc(r.team.name)}</div>${r.team.unit ? `<div class="un">${esc(r.team.unit)}</div>` : ''}
-      <div class="pt ${i === 0 ? 'gold-text' : 'silver-text'}">${f2(r.pts)}</div></div>`).join('')}</div>${rows.some(r => r.pts) ? '' : '-->'}
+      <div class="pt ${i === 0 ? 'gold-text' : 'silver-text'}" data-count="${r.pts}">${f2(r.pts)}</div></div>`).join('')}</div>${rows.some(r => r.pts) ? '' : '-->'}
   <div class="panel" style="padding:6px 10px">
     <table class="table"><thead><tr><th>#</th><th>TEAM</th>
       <th class="t-num t-hide"><span class="medal m1"></span>1st</th><th class="t-num t-hide"><span class="medal m2"></span>2nd</th><th class="t-num t-hide"><span class="medal m3"></span>3rd</th>
       <th style="text-align:right">POINTS</th></tr></thead><tbody>
     ${rows.map(r => `<tr><td class="t-rank">${r.rank}</td>
-      <td><div class="t-team"><img src="${r.team.logo}" alt=""><div style="flex:1;min-width:0">${esc(r.team.name)}${r.team.unit ? `<span class="un">${esc(r.team.unit)}</span>` : ''}<div class="bar"><i style="width:${r.pts / max * 100}%"></i></div></div></div></td>
+      <td><div class="t-team"><img src="${r.team.logo}" alt=""><div style="flex:1;min-width:0">${esc(r.team.name)}${r.team.unit ? `<span class="un">${esc(r.team.unit)}</span>` : ''}<div class="bar"><i data-w="${r.pts / max * 100}" style="width:${r.pts / max * 100}%"></i></div></div></div></td>
       <td class="t-num t-hide">${r.m[0]}</td><td class="t-num t-hide">${r.m[1]}</td><td class="t-num t-hide">${r.m[2]}</td>
-      <td class="t-pts"><span class="gold-text">${f2(r.pts)}</span></td></tr>`).join('')}
+      <td class="t-pts"><span class="gold-text" data-count="${r.pts}">${f2(r.pts)}</span></td></tr>`).join('')}
     </tbody></table>
   </div>
   <p class="note">Overall points = sum of points from all events marked <b>Final</b>. Each department is tabulated separately. 1st/2nd/3rd = event placements (display only).</p>`;
@@ -656,14 +713,14 @@ function vSettings() {
 
 /* ---------- Modals ---------- */
 function modal(html, narrow) { $('#modalHost').innerHTML = `<div class="modal"><div class="modal-in ${narrow ? 'narrow' : ''}">${html}</div></div>`; }
-function closeModal() { $('#modalHost').innerHTML = ''; render(); }
+function closeModal() { $('#modalHost').innerHTML = ''; render(false); }
 
 function openSignIn() {
   modal(`
     <img class="signin-logo" src="assets/sec_logo.svg" alt="SEC logo">
     <h3 class="gold-text" style="text-align:center;margin-bottom:12px">ADMIN SIGN-IN</h3>
     <form id="signForm" autocomplete="off">
-      <div class="field"><label>Name</label><input class="input" id="sgName" maxlength="40" placeholder="e.g. Tabulator 1"></div>
+      <div class="field"><label>Username</label><input class="input" id="sgName" maxlength="40" autocapitalize="off" spellcheck="false"></div>
       <div class="field"><label>Password</label><input class="input" id="sgPass" type="password"></div>
       <div class="err" id="sgErr"></div>
       <div class="row"><button type="button" class="btn ghost" data-close>Cancel</button><span class="spacer"></span><button class="btn primary" id="sgBtn" type="submit">Sign in</button></div>
@@ -671,13 +728,13 @@ function openSignIn() {
   setTimeout(() => $('#sgName').focus(), 50);
   $('#signForm').addEventListener('submit', async ev => {
     ev.preventDefault();
-    const pw = $('#sgPass').value, name = $('#sgName').value.trim() || 'Admin';
+    const pw = $('#sgPass').value, name = $('#sgName').value.trim();
     $('#sgBtn').disabled = true; $('#sgErr').textContent = '';
     try {
-      S.state = await apiPost('login', { password: pw }) || S.state;
+      S.state = await apiPost('login', { username: name, password: pw }) || S.state;
       S.password = pw; S.editor = name; ss('pas_pw', pw); ss('pas_ed', name);
-      setAdmin(true); $('#modalHost').innerHTML = ''; render(); toast('Signed in as ' + name);
-    } catch (e) { $('#sgErr').textContent = e.message === 'Invalid password' ? 'Incorrect password.' : 'Cannot reach server.'; $('#sgBtn').disabled = false; }
+      setAdmin(true); $('#modalHost').innerHTML = ''; render(); toast('Signed in');
+    } catch (e) { $('#sgErr').textContent = /Invalid/.test(e.message) ? 'Incorrect username or password.' : 'Cannot reach server.'; $('#sgBtn').disabled = false; }
   });
 }
 
@@ -834,7 +891,7 @@ async function save(action, payload, msg) {
       payload._mirror = mirrorRows(preview);
     }
     S.state = await apiPost(action, payload);
-    $('#modalHost').innerHTML = ''; render(); updateSync(); toast(msg || 'Saved');
+    $('#modalHost').innerHTML = ''; render(false); updateSync(); toast(msg || 'Saved');
   } catch (err) { toast(err.message || 'Save failed'); btns.forEach(b => b.disabled = false); }
 }
 

@@ -3,7 +3,9 @@
  *
  * Setup:
  * 1. Create a Google Sheet. Extensions > Apps Script. Paste this file.
- * 2. Project Settings > Script Properties > add:  EDITOR_PASSWORD = <admin password>
+ * 2. Project Settings > Script Properties > add:
+ *      EDITOR_USERNAME = admin
+ *      EDITOR_PASSWORD = <admin password>   (never put the password in this file)
  * 3. Deploy > New deployment > Web app — Execute as: Me · Who has access: Anyone
  * 4. Copy the Web app URL into CONFIG.API_URL in index.html.
  *
@@ -23,8 +25,13 @@ function doPost(e) {
   try { req = JSON.parse(e.postData.contents); }
   catch (err) { return json_({ ok: false, error: 'Bad request' }); }
 
-  const pw = PropertiesService.getScriptProperties().getProperty('EDITOR_PASSWORD');
-  if (!pw || req.password !== pw) return json_({ ok: false, error: 'Invalid password' });
+  const props = PropertiesService.getScriptProperties();
+  const user = props.getProperty('EDITOR_USERNAME') || 'admin';
+  const pw = props.getProperty('EDITOR_PASSWORD');
+  if (!pw || req.username !== user || req.password !== pw) {
+    Utilities.sleep(800); // slow down guessing
+    return json_({ ok: false, error: 'Invalid username or password' });
+  }
   if (req.action === 'login') return json_({ ok: true, state: loadState_() });
 
   const lock = LockService.getScriptLock();
@@ -56,7 +63,7 @@ function doPost(e) {
     }
 
     state.updatedAt = new Date().toISOString();
-    state.updatedBy = req.editor || 'Admin';
+    state.updatedBy = req.username || 'admin';
     sheet_(DATA_SHEET).getRange('A1').setValue(JSON.stringify(state));
     if (req.mirror) {
       writeTable_('Standings', req.mirror.standings);
@@ -66,6 +73,13 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Run once from the editor (Run > setup) to create the sheets. */
+function setup() {
+  [DATA_SHEET, 'Standings', 'Results'].forEach(sheet_);
+  const def = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
+  if (def && SpreadsheetApp.getActiveSpreadsheet().getSheets().length > 1) SpreadsheetApp.getActiveSpreadsheet().deleteSheet(def);
 }
 
 function loadState_() {
