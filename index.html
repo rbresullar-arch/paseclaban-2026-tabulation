@@ -277,6 +277,8 @@ function buildEvents() {
     subs: (subs || []).map((l, i) => ({ id: 's' + (i + 1), label: l })), pool: pool || 'sub', status: 'upcoming', res: {}
   }));
   const MW = ['Men', 'Women'], MWX = ['Men', 'Women', 'Mixed'];
+  const SWIM = ['50 m. Freestyle', '50 m. Breast Stroke', '50 m. Back Stroke', '50 m. Butterfly Stroke',
+                '100 m. Individual Medley', '4x25 m. Medley Relay', '4x25 m. Freestyle Relay'];
   // College and High School
   add('chs', 'Basketball', 'A', MW);
   add('chs', 'Volleyball', 'A', MW);
@@ -291,7 +293,7 @@ function buildEvents() {
   add('chs', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('chs', 'Badminton', 'B', ['Mixed']);
   add('chs', 'Pickleball', 'B', MWX);
-  add('chs', 'Swimming', 'B', MW, 'multi', ['50m Freestyle']);
+  add('chs', 'Swimming', 'B', MW, 'multi', SWIM);
   add('chs', 'Bench Yell', 'B', ['']);
   add('chs', 'Dance Sport – Latin Section', 'B', ['']);
   add('chs', 'Dance Sport – Standard Section', 'B', ['']);
@@ -306,7 +308,7 @@ function buildEvents() {
   add('elem', 'Table Tennis', 'B', ['Mixed']);
   add('elem', 'Badminton', 'B', MW, 'multi', ['Singles', 'Doubles']);
   add('elem', 'Badminton', 'B', ['Mixed']);
-  add('elem', 'Swimming', 'B', MW, 'multi', ['50m Freestyle']);
+  add('elem', 'Swimming', 'B', MW, 'multi', SWIM);
   add('elem', 'Dance Sport – Latin Section', 'B', ['']);
   add('elem', 'Dance Sport – Standard Section', 'B', ['']);
   add('elem', 'Banner Raising', 'C', ['']);
@@ -338,7 +340,7 @@ const DEFAULT_STATE = {
 /* ---------- Runtime ---------- */
 const S = { state: null, admin: false, password: '', editor: '', tab: 'overall', dept: 'chs', cat: 'All', evFilter: 'all', lastSync: null, poll: null };
 const DEMO = !CONFIG.API_URL;
-const DEMO_KEY = 'paseclaban2026_demo_v3';
+const DEMO_KEY = 'paseclaban2026_demo_v4';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
